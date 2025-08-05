@@ -248,17 +248,6 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 ---
 
-## 📊 Performance Optimization
-
-- **Image Optimization**: Automatic resizing and compression via Cloudinary
-- **Caching**: Browser caching for static assets
-- **CDN**: Global content delivery via Cloudinary CDN
-- **Lazy Loading**: Progressive image loading for better UX
-- **Database Indexing**: Optimized MongoDB queries
-- **Code Splitting**: React lazy loading for faster initial load
-
----
-
 ## 🤝 Contributing
 
 We welcome contributions! Please follow these steps:
