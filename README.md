@@ -292,12 +292,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/Smart-Virtual-Wardrobe/issues)
-- **Email**: support@smartvirtualwardrobe.com
-- **Discord**: [Join our community](https://discord.gg/smartwardrobe)
-
----
-
 **⭐ Star this repository if you find it helpful!**
