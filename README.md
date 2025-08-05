@@ -1,4 +1,4 @@
-# 🧥 Smart Virtual Wardrobe
+# 🧥🧥 Smart Virtual Wardrobe
 
 A comprehensive AI-powered virtual wardrobe application that combines intelligent clothing classification, virtual try-on capabilities, and personal wardrobe management. Built with FastAPI backend and React frontend, featuring Google Gemini AI for realistic virtual try-ons and Roboflow for automatic clothing classification.
 
