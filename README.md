@@ -44,7 +44,6 @@ A comprehensive AI-powered virtual wardrobe application that combines intelligen
 - CDN Delivery
 
 ### Database
-- MongoDB
 - MongoDB Atlas
 
 ---
