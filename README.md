@@ -6,7 +6,7 @@ A comprehensive AI-powered virtual wardrobe application that combines intelligen
 
 ## 🚀 Features
 
-**📱 Live Demo**: [Smart Virtual Wardrobe Demo](https://jmp.sh/iMeyrOOx)
+**📱 Live Demo**: [View Smart Virtual Wardrobe Demo](https://jmp.sh/iMeyrOOx)
 
 - **🤖 AI Virtual Try-On**: Upload person and clothing images to generate photorealistic try-on results using Google Gemini
 - **📸 Smart Clothing Classification**: Automatic categorization of clothing items using Roboflow AI
