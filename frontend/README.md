@@ -89,10 +89,4 @@ Contributions are welcome! Please fork the repository and create a pull request 
 
 ---
 
-## 📞 Support
-
-For issues or questions, please open an issue on the main repository or contact support@smartvirtualwardrobe.com.
-
----
-
 **⭐ Star this repository if you find it helpful!**

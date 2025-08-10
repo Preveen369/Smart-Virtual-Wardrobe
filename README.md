@@ -46,7 +46,6 @@ A comprehensive AI-powered virtual wardrobe application that combines intelligen
 - CDN Delivery
 
 ### Database
-- MongoDB
 - MongoDB Atlas
 
 ---
@@ -291,14 +290,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - MongoDB Atlas for database hosting
 - FastAPI team for the excellent framework
 - React community for UI libraries
-
----
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/yourusername/Smart-Virtual-Wardrobe/issues)
-- **Email**: support@smartvirtualwardrobe.com
-- **Discord**: [Join our community](https://discord.gg/smartwardrobe)
 
 ---
 
