@@ -32,32 +32,15 @@ Below are some screenshots showcasing the **Smart-Virtual-Wardrobe** core featur
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- React.js
-- Ant Design
-- React Router
-- React Context API
-- Axios
+- **Frontend:**  React.js, Ant Design, React Router, React Context API, Axios
 
-### Backend
-- FastAPI
-- Python 3.12+
-- Uvicorn
-- Pydantic
-- JWT Authentication
+- **Backend:**  FastAPI, Python 3.12+, Uvicorn, Pydantic, JWT Authentication
 
-### AI Services
-- Google Gemini API
-- Roboflow Classification
-- TensorFlow Models
-- Computer Vision
+- **AI Services:**  Google Gemini API,Roboflow Classification, TensorFlow Models, Computer Vision
 
-### Cloud Services
-- Cloudinary (Image Storage & CDN)
-- CDN Delivery
+- **Cloud Services:**  Cloudinary (Image Storage & CDN), CDN Delivery
 
-### Database
-- MongoDB Atlas
+- **Database:**  MongoDB Atlas
 
 ---
 
