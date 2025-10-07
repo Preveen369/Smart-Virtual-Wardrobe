@@ -11,7 +11,6 @@ A comprehensive AI-powered virtual wardrobe application that combines intelligen
 - **🤖 AI Virtual Try-On**: Upload person and clothing images to generate photorealistic try-on results using Google Gemini
 - **📸 Smart Clothing Classification**: Automatic categorization of clothing items using Roboflow AI
 - **👕 Personal Wardrobe Management**: Digitally organize and manage your clothing collection
-- **📊 Wardrobe Analytics**: Track statistics about your clothing collection
 - **🔐 Secure Authentication**: JWT-based user authentication system
 - **☁️ Cloud Storage**: Images stored securely on Cloudinary CDN
 - **📱 Responsive Design**: Works seamlessly on desktop and mobile devices
