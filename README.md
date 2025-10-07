@@ -18,6 +18,18 @@ A comprehensive AI-powered virtual wardrobe application that combines intelligen
 
 ---
 
+## 📸 Screenshots
+
+Below are some screenshots showcasing the **Smart-Virtual-Wardrobe** core features:
+
+![Virtual_Tryon_Example](./screenshots/virtual_tryon_example.png)
+
+![Virtual_Tryon_Result](./screenshots/virtual_tryon_result.png)
+
+![Classification_Result](/screenshots/image_classification.png)
+
+---
+
 ## 🛠️ Tech Stack
 
 ### Frontend
