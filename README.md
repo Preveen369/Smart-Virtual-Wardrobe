@@ -2,11 +2,11 @@
 
 A comprehensive AI-powered virtual wardrobe application that combines intelligent clothing classification, virtual try-on capabilities, and personal wardrobe management. Built with FastAPI backend and React frontend, featuring Google Gemini AI for realistic virtual try-ons and Roboflow for automatic clothing classification.
 
+**📽️ Project Demo**: [View Smart Virtual Wardrobe Demo](https://jmp.sh/iMeyrOOx)
+
 ---
 
 ## 🚀 Features
-
-**📱 Live Demo**: [View Smart Virtual Wardrobe Demo](https://jmp.sh/iMeyrOOx)
 
 - **🤖 AI Virtual Try-On**: Upload person and clothing images to generate photorealistic try-on results using Google Gemini
 - **📸 Smart Clothing Classification**: Automatic categorization of clothing items using Roboflow AI
@@ -33,13 +33,9 @@ Below are some screenshots showcasing the **Smart-Virtual-Wardrobe** core featur
 ## 🛠️ Tech Stack
 
 - **Frontend:**  React.js, Ant Design, React Router, React Context API, Axios
-
 - **Backend:**  FastAPI, Python 3.12+, Uvicorn, Pydantic, JWT Authentication
-
 - **AI Services:**  Google Gemini API,Roboflow Classification, TensorFlow Models, Computer Vision
-
 - **Cloud Services:**  Cloudinary (Image Storage & CDN), CDN Delivery
-
 - **Database:**  MongoDB Atlas
 
 ---
@@ -287,4 +283,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**⭐ Star this repository if you find it helpful!**
+## 📧 Contact
+For queries or suggestions:
+- 📩 Email: [spreveen123@gmail.com](mailto:spreveen123@gmail.com)
+- 🌐 LinkedIn: [www.linkedin.com/in/preveen-s-17250529b/](https://www.linkedin.com/in/preveen-s-17250529b/)
+
+---
+
+## 🌟 Show Your Support
+If you like this project, please consider giving it a ⭐ on GitHub!
