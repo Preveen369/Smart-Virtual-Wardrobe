@@ -23,7 +23,7 @@ Paper-ID with title: **1338 - Smart Virtual Wardrobe: AI-Powered Outfit Planner 
 
 ---
 
-## 🚀 Features
+## 🚀 Core Features
 
 - **🤖 AI Virtual Try-On**: Upload person and clothing images to generate photorealistic try-on results using Google Gemini
 - **📸 Smart Clothing Classification**: Automatic categorization of clothing items using Roboflow AI
