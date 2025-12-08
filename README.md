@@ -6,6 +6,21 @@ A comprehensive AI-powered virtual wardrobe application that combines intelligen
 
 ---
 
+# 🏆 Conference Publication & Certification
+
+We proudly presented this research work at, "**2025 IEEE 7th International Conference on Computing, Communication and Automation 
+(ICCCA)**" held on November 28-30, 2025, at Galgotias University, Greater Noida, India through **Hybrid Mode**
+
+Paper-ID with title: **1338 - Smart Virtual Wardrobe: AI-Powered Outfit Planner and Style Assistant**
+
+- **📄 View Conference Paper**: 👉 [Click to Open the Research Paper (PDF)]()
+
+- **🏅 View Presentation Certificate**: 👉 [Click to Open Presentation Certificate (PDF)]()
+
+- **🌐 IEEE Xplore Publication Link**: 👉 waiting for paper to be published soon ...
+
+---
+
 ## 🚀 Features
 
 - **🤖 AI Virtual Try-On**: Upload person and clothing images to generate photorealistic try-on results using Google Gemini
