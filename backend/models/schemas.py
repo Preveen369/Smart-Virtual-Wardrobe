@@ -22,15 +22,16 @@ class GarmentType(str, Enum):
 
 class Style(str, Enum):
     CASUAL = "casual"
+    ETHNIC = "ethnic"
     FORMAL = "formal"
-    BUSINESS = "business"
-    SPORTY = "sporty"
-    ELEGANT = "elegant"
-    BOHEMIAN = "bohemian"
-    VINTAGE = "vintage"
-    MODERN = "modern"
-    TRADITIONAL = "traditional"
-    OTHER = "other"
+    PARTY = "party"
+
+
+class Season(str, Enum):
+    SUMMER = "summer"
+    WINTER = "winter"
+    RAINY = "rainy"
+    ALL = "all"
 
 # User Authentication Models
 class UserCreate(BaseModel):
@@ -91,31 +92,40 @@ class ProfileResponse(BaseModel):
 class WardrobeItemCreate(BaseModel):
     name: str
     garment_type: GarmentType
+    size: Optional[str] = None
+    season: Optional[Season] = None
     style: Optional[Style] = None
     color: Optional[str] = None
     brand: Optional[str] = None
     image_url: str
-    classification_results: Optional[Dict[str, Any]] = None
+    classification_results: Optional[List[Dict[str, Any]]] = None
+    teachable_results: Optional[List[Dict[str, Any]]] = None
 
 class WardrobeItemUpdate(BaseModel):
     name: Optional[str] = None
     garment_type: Optional[GarmentType] = None
+    size: Optional[str] = None
+    season: Optional[Season] = None
     style: Optional[Style] = None
     color: Optional[str] = None
     brand: Optional[str] = None
     image_url: Optional[str] = None
-    classification_results: Optional[Dict[str, Any]] = None
+    classification_results: Optional[List[Dict[str, Any]]] = None
+    teachable_results: Optional[List[Dict[str, Any]]] = None
 
 class WardrobeItemInDB(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
     email: EmailStr
     name: str
     garment_type: GarmentType
+    size: Optional[str] = None
+    season: Optional[Season] = None
     style: Optional[Style] = None
     color: Optional[str] = None
     brand: Optional[str] = None
     image_url: str
-    classification_results: Optional[Dict[str, Any]] = None
+    classification_results: Optional[List[Dict[str, Any]]] = None
+    teachable_results: Optional[List[Dict[str, Any]]] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -124,11 +134,14 @@ class WardrobeItemResponse(BaseModel):
     email: EmailStr
     name: str
     garment_type: GarmentType
+    size: Optional[str]
+    season: Optional[Season]
     style: Optional[Style]
     color: Optional[str]
     brand: Optional[str]
     image_url: str
-    classification_results: Optional[Dict[str, Any]]
+    classification_results: Optional[List[Dict[str, Any]]]
+    teachable_results: Optional[List[Dict[str, Any]]]
     created_at: datetime
     updated_at: datetime
 
@@ -232,6 +245,68 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: Optional[str] = None
+
+# Outfit Advisor request / response models
+class OutfitAdvisorRequest(BaseModel):
+    description: Optional[str] = None
+    outfit_name: Optional[str] = None
+    outfit_type: Optional[str] = None
+    outfit_size: Optional[str] = None
+    outfit_season: Optional[str] = None
+    outfit_style: Optional[str] = None
+    image_url: Optional[str] = None
+
+class OutfitAdvisorResponse(BaseModel):
+    suitability_score: Optional[int] = None
+    recommendation: Optional[str] = None
+    explanation: Optional[str] = None
+    improvement_suggestions: Optional[str] = None
+    better_outfit_idea: Optional[str] = None
+
+# DB storage models for outfit advisor results
+class OutfitAdvisorCreate(OutfitAdvisorRequest):
+    pass
+
+class OutfitAdvisorInDB(BaseModel):
+    id: Optional[str] = Field(None, alias="_id")
+    email: EmailStr
+
+    # request inputs
+    description: Optional[str] = None
+    outfit_name: Optional[str] = None
+    outfit_type: Optional[str] = None
+    outfit_size: Optional[str] = None
+    outfit_season: Optional[str] = None
+    outfit_style: Optional[str] = None
+    image_url: Optional[str] = None
+
+    # results
+    suitability_score: Optional[int] = None
+    recommendation: Optional[str] = None
+    explanation: Optional[str] = None
+    improvement_suggestions: Optional[str] = None
+    better_outfit_idea: Optional[str] = None
+
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class OutfitAdvisorDBResponse(BaseModel):
+    id: str
+    email: EmailStr
+    description: Optional[str]
+    outfit_name: Optional[str]
+    outfit_type: Optional[str]
+    outfit_size: Optional[str]
+    outfit_season: Optional[str]
+    outfit_style: Optional[str]
+    image_url: Optional[str]
+    suitability_score: Optional[int]
+    recommendation: Optional[str]
+    explanation: Optional[str]
+    improvement_suggestions: Optional[str]
+    better_outfit_idea: Optional[str]
+    created_at: datetime
+    updated_at: datetime
 
 # Response Models
 class SuccessResponse(BaseModel):

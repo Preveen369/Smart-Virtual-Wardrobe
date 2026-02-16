@@ -31,10 +31,10 @@ const { Title, Text } = Typography;
 
 const FAVORITE_TRYON_KEY = "favorite_tryon_results";
 
-function TryOnPage({ isDarkMode, setIsDarkMode }) {
+function TryOnPage({ isDarkMode }) {
   const [personImage, setPersonImage] = useState(null);
   const [clothImage, setClothImage] = useState(null);
-  const [instructions, setInstructions] = useState("");
+  const [instructions, _setInstructions] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
@@ -300,15 +300,9 @@ function TryOnPage({ isDarkMode, setIsDarkMode }) {
                           onChange={setStyle}
                         >
                           <Option value="casual">Casual</Option>
+                          <Option value="ethnic">Ethnic</Option>
                           <Option value="formal">Formal</Option>
-                          <Option value="business">Business</Option>
-                          <Option value="sporty">Sporty</Option>
-                          <Option value="elegant">Elegant</Option>
-                          <Option value="bohemian">Bohemian</Option>
-                          <Option value="vintage">Vintage</Option>
-                          <Option value="modern">Modern</Option>
-                          <Option value="traditional">Traditional</Option>
-                          <Option value="other">Other</Option>
+                          <Option value="party">Party</Option>
                         </Select>
                       </div>
                     </div>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Layout, Button, Card, Row, Col, Typography, Space, Input, Form, Select, Empty, Modal, Spin, message } from "antd";
+import { Layout, Button, Card, Row, Col, Typography, Space, Input, Form, Select, Empty, Modal, Spin } from "antd";
 import { UploadOutlined, PlusOutlined, CloseCircleOutlined, HeartOutlined, HeartFilled, ReloadOutlined } from "@ant-design/icons";
 import ImageUpload from "../components/ImageUpload";
+import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { wardrobeService, apiUtils } from "../services/api";
@@ -16,6 +17,9 @@ const WardrobePage = ({ isDarkMode }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [results, setResults] = useState(null);
+  const [tmModelUrl] = useState("https://teachablemachine.withgoogle.com/models/5oUxByMWW/");
+  const [tmModel, setTmModel] = useState(null);
+  const [tmResults, setTmResults] = useState(null);
   const [imageUrl, setImageUrl] = useState(null);
   const [wardrobe, setWardrobe] = useState([]);
   const [form] = Form.useForm();
@@ -48,6 +52,60 @@ const WardrobePage = ({ isDarkMode }) => {
     setSelectedFile(file);
     setResults(null);
     setImageUrl(null);
+    setTmResults(null);
+    setTmModel(null);
+  };
+
+  const loadTmModel = async () => {
+    if (!tmModelUrl) {
+      toast.error("Please enter a Teachable Machine model URL.");
+      return null;
+    }
+    try {
+      const modelURL = tmModelUrl + "model.json";
+      const metadataURL = tmModelUrl + "metadata.json";
+      const model = await window.tmImage.load(modelURL, metadataURL);
+      setTmModel(model);
+      return model;
+    } catch (err) {
+      toast.error("Failed to load Teachable Machine model.");
+      return null;
+    }
+  };
+
+  const runTeachablePredict = async (file) => {
+    if (!file) {
+      throw new Error("No file provided for Teachable prediction");
+    }
+
+    let model = tmModel;
+    if (!model) {
+      model = await loadTmModel();
+      if (!model) throw new Error("Failed to load Teachable model");
+    }
+
+    // Create an Image element from the file
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    await img.decode();
+
+    const prediction = await model.predict(img);
+    return prediction.map((p) => ({ class: p.className, confidence: `${(p.probability * 100).toFixed(0)}%` }));
+  };
+
+  const mapPredictionToType = (label) => {
+    if (!label) return null;
+    const l = label.toLowerCase();
+    if (l.includes('skirt')) return 'skirt';
+    if (l.includes('dress')) return 'dress';
+    if (l.includes("t-shirt") || l.includes('tshirt')) return 'tshirt';
+    if (l.includes('shirt') && !l.includes('t-shirt') && !l.includes('tshirt')) return 'shirt';
+    if (l.includes('jacket')) return 'jacket';
+    if (l.includes('coat')) return 'coat';
+    if (l.includes('saree')) return 'saree';
+    if (l.includes('churidar')) return 'churidar';
+    if (l.includes('pant') || l.includes('trouser') || l.includes('jean') || l.includes('jeans') || l.includes('shorts')) return 'pants';
+    return 'other';
   };
 
   const handleClassify = async () => {
@@ -57,13 +115,49 @@ const WardrobePage = ({ isDarkMode }) => {
     }
     setUploading(true);
     try {
-      const response = await wardrobeService.classifyImage(selectedFile);
-      setResults(response.results);
-      setImageUrl(response.image_url);
-      toast.success("Image classified successfully!");
+      // Run both backend classification (uploads image and returns results) and client-side Teachable prediction in parallel
+      const backendPromise = wardrobeService.classifyImage(selectedFile);
+      const tmPromise = runTeachablePredict(selectedFile);
+
+      const [backendResp, tmResp] = await Promise.all([backendPromise, tmPromise]);
+
+      // Set both results and the uploaded image URL
+      setResults(backendResp.results);
+      setImageUrl(backendResp.image_url);
+      setTmResults(tmResp);
+
+      // Auto-fill Type: pick highest-confidence label from backend results, fallback to Teachable results
+      const pickHighest = (arr) => {
+        if (!arr || !arr.length) return null;
+        return arr.reduce((best, cur) => {
+          const parseConf = (it) => {
+            if (!it) return 0;
+            if (typeof it.confidence === 'string') return parseInt(it.confidence.replace('%', '') || 0);
+            if (typeof it.probability === 'number') return Math.round(it.probability * 100);
+            return 0;
+          };
+          return parseConf(cur) > parseConf(best) ? cur : best;
+        }, arr[0]);
+      };
+
+      const bestBackend = pickHighest(backendResp.results || []);
+      const bestTm = pickHighest(tmResp || []);
+      const best = bestBackend || bestTm || null;
+      const predictedLabel = best?.class || best?.className || null;
+      const mappedType = mapPredictionToType(predictedLabel);
+      if (mappedType) {
+        form.setFieldsValue({ type: mappedType });
+      }
+
+      toast.success("Image classified by both models!");
     } catch (error) {
-      const errorInfo = apiUtils.handleError(error);
-      toast.error(errorInfo.message);
+      // Determine source of error
+      if (error.response) {
+        const errorInfo = apiUtils.handleError(error);
+        toast.error(errorInfo.message);
+      } else {
+        toast.error(error.message || "Classification failed");
+      }
     } finally {
       setUploading(false);
     }
@@ -74,24 +168,34 @@ const WardrobePage = ({ isDarkMode }) => {
       toast.error("Please select an image to upload.");
       return;
     }
-    if (!results) {
-      toast.error("Please classify the image before uploading.");
+    if (!results && !tmResults) {
+      toast.error("Please classify the image (backend or Teachable) before uploading.");
       return;
     }
 
     try {
+      // Ensure we have an uploaded image URL. If not, upload via classify endpoint (it uploads to Cloudinary).
+      if (!imageUrl) {
+        const uploadResp = await wardrobeService.classifyImage(selectedFile);
+        setImageUrl(uploadResp.image_url);
+        // If no backend results yet, set them from response
+        if (!results && uploadResp.results) {
+          setResults(uploadResp.results);
+        }
+      }
       // Create wardrobe item data
       const itemData = {
         name: values.name,
         garment_type: values.type?.toLowerCase(),
+        size: values.size || null,
+        season: values.season || null,
         style: values.style || null,
         color: values.color || null,
         brand: values.brand || null,
         image_url: imageUrl,
-        classification_results: {
-          results: results,
-          confidence: results[0]?.confidence || "0%"
-        }
+        // Store backend classification results as an array (same shape as teachable_results)
+        classification_results: results || null,
+        teachable_results: tmResults || null,
       };
 
       // Save to database
@@ -125,6 +229,8 @@ const WardrobePage = ({ isDarkMode }) => {
     setSelectedFile(null);
     setResults(null);
     setImageUrl(null);
+    setTmModel(null);
+    setTmResults(null);
     form.resetFields();
   };
 
@@ -133,6 +239,8 @@ const WardrobePage = ({ isDarkMode }) => {
     setSelectedFile(null);
     setResults(null);
     setImageUrl(null);
+    setTmModel(null);
+    setTmResults(null);
     form.resetFields();
   };
 
@@ -263,6 +371,8 @@ const WardrobePage = ({ isDarkMode }) => {
             <div style={{ width: '100%', padding: '18px 18px 14px 18px', textAlign: 'center', background: isDarkMode ? '#18181b' : '#fff', borderBottomLeftRadius: 16, borderBottomRightRadius: 16 }}>
               <span style={{ display: 'block', fontWeight: 700, fontSize: 18, color: isDarkMode ? '#f3f4f6' : '#1f2937', marginBottom: 2, letterSpacing: 0.2 }}>{item.name}</span>
               <span style={{ display: 'block', fontWeight: 500, fontSize: 15, color: isDarkMode ? '#38bdf8' : '#0ea5e9', marginBottom: 2 }}>{item.garment_type}</span>
+              {item.size && <span style={{ display: 'block', fontSize: 14, color: isDarkMode ? '#fbbf24' : '#f59e42', fontWeight: 500, marginBottom: 2 }}>Size: {item.size}</span>}
+              {item.season && <span style={{ display: 'block', fontSize: 14, color: isDarkMode ? '#60a5fa' : '#0ea5e9', fontWeight: 500, marginBottom: 2 }}>Season: {item.season}</span>}
               {item.color && <span style={{ display: 'block', fontSize: 14, color: isDarkMode ? '#fde68a' : '#ca8a04', fontWeight: 500, marginBottom: 2 }}>Color: {item.color}</span>}
               {item.brand && <span style={{ display: 'block', fontSize: 14, color: isDarkMode ? '#a1a1aa' : '#6b7280', fontWeight: 500, marginBottom: 2 }}>Brand: {item.brand}</span>}
             </div>
@@ -342,6 +452,23 @@ const WardrobePage = ({ isDarkMode }) => {
               >
                 Refresh
               </Button>
+              <Link to="/outfit-advisor">
+                <Button
+                  type="default"
+                  style={{
+                    marginLeft: 8,
+                    borderRadius: 999,
+                    fontWeight: 700,
+                    fontSize: '0.95rem',
+                    padding: '0.6rem 1.4rem',
+                    border: isDarkMode ? '1px solid #38bdf8' : '1px solid #0ea5e9',
+                    color: isDarkMode ? '#38bdf8' : '#0ea5e9',
+                    background: 'transparent',
+                  }}
+                >
+                  Outfit Advisor
+                </Button>
+              </Link>
             </div>
             <Modal
               open={modalOpen}
@@ -394,11 +521,12 @@ const WardrobePage = ({ isDarkMode }) => {
                       >
                         {uploading ? "Classifying..." : "Classify"}
                       </Button>
-                      {results && (
+                      
+                      {results && tmResults && (
                         <Card
                           size="small"
                           style={{
-                            marginTop: 18,
+                            marginTop: 14,
                             background: isDarkMode ? "#18181b" : "#fff",
                             border: isDarkMode ? '2px solid #38bdf8' : '1px solid #eee',
                             borderRadius: 12,
@@ -407,37 +535,67 @@ const WardrobePage = ({ isDarkMode }) => {
                               : '0 2px 8px #0ea5e933',
                           }}
                           styles={{ body: { padding: 14 }, header: { color: textColor, fontSize: 15 } }}
-                          title={<span style={{ color: textColor, fontWeight: 600 }}>Classified Category</span>}
+                          title={<span style={{ color: textColor, fontWeight: 600 }}>Classification Results</span>}
                         >
                           <Space direction="vertical" size="small">
-                            {results.map((item, idx) => {
-                              // Parse confidence as percent integer
-                              const percent = parseInt(item.confidence.replace('%', ''));
-                              return (
-                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                  <Text strong style={{ color: textColor, minWidth: 90 }}>{item.class}</Text>
-                                  <div style={{ flex: 1, minWidth: 80, maxWidth: 120, background:'#727272ff', borderRadius: 6, height: 16, position: 'relative', marginRight: 8 }}>
-                                    <div style={{
-                                      width: `${percent}%`,
-                                      background: percent > 80 ? '#22c55e' : percent > 50 ? '#eab308' : '#ef4444',
-                                      height: '100%',
-                                      borderRadius: 6,
-                                      transition: 'width 0.3s',
-                                    }} />
-                                    <span style={{
-                                      position: 'absolute',
-                                      left: '50%',
-                                      top: '50%',
-                                      transform: 'translate(-50%, -50%)',
-                                      color: '#fff',
-                                      fontWeight: 500,
-                                      fontSize: 13,
-                                      letterSpacing: 1,
-                                    }}>{item.confidence}</span>
+                            
+                            <div>
+                              {results.map((item, idx) => {
+                                const percent = parseInt(item.confidence.replace('%', ''));
+                                return (
+                                  <div key={`backend-${idx}`} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                                    <Text strong style={{ color: textColor, minWidth: 90 }}>{item.class}</Text>
+                                    <div style={{ flex: 1, minWidth: 80, maxWidth: 120, background:'#727272ff', borderRadius: 6, height: 16, position: 'relative', marginRight: 8 }}>
+                                      <div style={{
+                                        width: `${percent}%`,
+                                        background: percent > 80 ? '#22c55e' : percent > 50 ? '#eab308' : '#ef4444',
+                                        height: '100%',
+                                        borderRadius: 6,
+                                        transition: 'width 0.3s',
+                                      }} />
+                                      <span style={{
+                                        position: 'absolute',
+                                        left: '50%',
+                                        top: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        color: '#fff',
+                                        fontWeight: 500,
+                                        fontSize: 13,
+                                        letterSpacing: 1,
+                                      }}>{item.confidence}</span>
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            })}
+                                );
+                              })}
+
+                              {tmResults.map((item, idx) => {
+                                const percent = parseInt(item.confidence.replace('%', ''));
+                                return (
+                                  <div key={`tm-${idx}`} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                                    <Text strong style={{ color: textColor, minWidth: 90 }}>{item.class}</Text>
+                                    <div style={{ flex: 1, minWidth: 80, maxWidth: 120, background:'#727272ff', borderRadius: 6, height: 16, position: 'relative', marginRight: 8 }}>
+                                      <div style={{
+                                        width: `${percent}%`,
+                                        background: percent > 80 ? '#22c55e' : percent > 50 ? '#eab308' : '#ef4444',
+                                        height: '100%',
+                                        borderRadius: 6,
+                                        transition: 'width 0.3s',
+                                      }} />
+                                      <span style={{
+                                        position: 'absolute',
+                                        left: '50%',
+                                        top: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        color: '#fff',
+                                        fontWeight: 500,
+                                        fontSize: 13,
+                                        letterSpacing: 1,
+                                      }}>{item.confidence}</span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
                           </Space>
                         </Card>
                       )}
@@ -476,6 +634,26 @@ const WardrobePage = ({ isDarkMode }) => {
                           <Option value="other">Other</Option>
                         </Select>
                       </Form.Item>
+                      <Form.Item
+                        label={<span style={{ fontWeight: 600, color: textColor }}>Size</span>}
+                        name="size"
+                      >
+                        <Select placeholder="Select size" style={{ borderRadius: 8, fontSize: '1.01rem' }}>
+                          <Option value="S">S</Option>
+                          <Option value="M">M</Option>
+                          <Option value="L">L</Option>
+                          <Option value="XL">XL</Option>
+                          <Option value="XXL">XXL</Option>
+                        </Select>
+                      </Form.Item>
+                      <Form.Item label={<span style={{ fontWeight: 600, color: textColor }}>Season</span>} name="season">
+                        <Select placeholder="Select season" style={{ borderRadius: 8, fontSize: '1.01rem' }}>
+                          <Option value="summer">Summer</Option>
+                          <Option value="winter">Winter</Option>
+                          <Option value="rainy">Rainy</Option>
+                          <Option value="all">All</Option>
+                        </Select>
+                      </Form.Item>
                       <Form.Item label={<span style={{ fontWeight: 600, color: textColor }}>Color</span>} name="color">
                         <Input placeholder="e.g. Blue, Red, Black" style={{ borderRadius: 8, fontSize: '1.01rem', padding: '0.32rem 0.7rem', height: 32 }} />
                       </Form.Item>
@@ -485,15 +663,9 @@ const WardrobePage = ({ isDarkMode }) => {
                       <Form.Item label={<span style={{ fontWeight: 600, color: textColor }}>Style</span>} name="style">
                         <Select placeholder="Select style" style={{ borderRadius: 8, fontSize: '1.01rem' }}>
                           <Option value="casual">Casual</Option>
+                          <Option value="ethnic">Ethnic</Option>
                           <Option value="formal">Formal</Option>
-                          <Option value="business">Business</Option>
-                          <Option value="sporty">Sporty</Option>
-                          <Option value="elegant">Elegant</Option>
-                          <Option value="bohemian">Bohemian</Option>
-                          <Option value="vintage">Vintage</Option>
-                          <Option value="modern">Modern</Option>
-                          <Option value="traditional">Traditional</Option>
-                          <Option value="other">Other</Option>
+                          <Option value="party">Party</Option>
                         </Select>
                       </Form.Item>
                       <Button
@@ -511,7 +683,7 @@ const WardrobePage = ({ isDarkMode }) => {
                           boxShadow: '0 2px 12px #0ea5e955',
                           border: 'none',
                         }}
-                        disabled={!results}
+                        disabled={!(results && tmResults)}
                       >
                         Upload to Wardrobe
                       </Button>

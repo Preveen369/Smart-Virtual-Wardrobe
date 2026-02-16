@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { authService, apiUtils } from "../services/api";
@@ -97,7 +98,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
       }
     }
-  }, []);
+  }, [user]);
 
   return (
     <AuthContext.Provider 

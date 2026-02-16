@@ -4,17 +4,16 @@ import { Layout, Typography, Card, Row, Col, Button, Avatar, Form, Input, Select
 import { UserOutlined, SettingOutlined, BellOutlined, SecurityScanOutlined, HeartOutlined, HistoryOutlined, LogoutOutlined, HomeOutlined } from "@ant-design/icons";
 import { useAuth } from "../context/AuthContext";
 import { useState, useEffect } from "react";
-import { message } from "antd";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { authService, apiUtils } from "../services/api";
+import { apiUtils } from "../services/api";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
 const ProfilePage = ({ isDarkMode }) => {
-  const { user, token, getProfile, updateProfile } = useAuth();
+  const { token, getProfile, updateProfile } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);

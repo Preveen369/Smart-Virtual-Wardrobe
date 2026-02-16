@@ -33,6 +33,9 @@ app.add_middleware(
 app.include_router(tryon.router, prefix="/api")
 app.include_router(wardrobe.router, prefix="/api")
 app.include_router(auth.router)
+# Outfit advisor (LLM-backed)
+from routers import outfit_advisor
+app.include_router(outfit_advisor.router, prefix="/api")
 
 @app.get("/")
 async def root():

@@ -1,0 +1,26 @@
+*.c
+*.so
+__pycache__/
+build/
+venv
+.venv
+env
+.env
+backend\env
+backend\.env
+
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+

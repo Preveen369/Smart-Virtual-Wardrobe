@@ -12,25 +12,35 @@ from passlib.context import CryptContext
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def convert_mongo_document(doc: Dict[str, Any], for_response: bool = False) -> Dict[str, Any]:
-    """Convert MongoDB document to Pydantic-compatible format"""
+    """Convert MongoDB document to Pydantic-compatible / JSON-serializable format.
+
+    - When `for_response=True` this will:
+      * rename `_id` -> `id` (string)
+      * convert any `ObjectId` values to strings
+      * convert `datetime` values to ISO-8601 strings
+    - Otherwise it preserves datetime objects for internal use.
+    """
     if doc is None:
         return None
-    
-    # Convert ObjectId to string
+
+    # Normalize/rename Mongo `_id`
     if "_id" in doc:
         if for_response:
             # For response models, convert _id to id
             doc["id"] = str(doc["_id"])
             del doc["_id"]
         else:
-            # For database models with aliases, keep _id
+            # For database models with aliases, keep _id as string
             doc["_id"] = str(doc["_id"])
-    
-    # Convert any other ObjectId fields to strings
-    for key, value in doc.items():
+
+    # Convert ObjectId and datetime values to JSON-serializable types
+    for key, value in list(doc.items()):
         if isinstance(value, ObjectId):
             doc[key] = str(value)
-    
+        elif for_response and isinstance(value, datetime):
+            # Convert datetimes to ISO strings for API responses
+            doc[key] = value.isoformat()
+
     return doc
 
 # User Operations
@@ -275,6 +285,73 @@ async def delete_tryon_session(session_id: str, email: str) -> bool:
         "email": email
     })
     return result.deleted_count > 0
+
+# Outfit Advisor operations
+async def create_outfit_advice(email: str, request_data: dict, result_data: dict) -> Optional[Dict[str, Any]]:
+    """Store an outfit advisor request + result for a user"""
+    db = get_database()
+    record = {
+        "email": email,
+        # request inputs
+        "description": request_data.get("description"),
+        "outfit_name": request_data.get("outfit_name"),
+        "outfit_type": request_data.get("outfit_type"),
+        "outfit_size": request_data.get("outfit_size"),
+        "outfit_season": request_data.get("outfit_season"),
+        "outfit_style": request_data.get("outfit_style"),
+        "image_url": request_data.get("image_url"),
+        # results
+        "suitability_score": result_data.get("suitability_score"),
+        "recommendation": result_data.get("recommendation"),
+        "explanation": result_data.get("explanation"),
+        "improvement_suggestions": result_data.get("improvement_suggestions"),
+        "better_outfit_idea": result_data.get("better_outfit_idea"),
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+    }
+    try:
+        res = await db.outfit_advisors.insert_one(record)
+        record["id"] = str(res.inserted_id)
+        print(f"[db] created outfit_advice id={record['id']} for email={email}")
+        return record
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"[db] failed to create outfit_advice for email={email}: {e}")
+        raise
+
+async def get_outfit_advice_by_id(record_id: str, email: str) -> Optional[Dict[str, Any]]:
+    db = get_database()
+    try:
+        doc = await db.outfit_advisors.find_one({"_id": ObjectId(record_id), "email": email})
+        if doc:
+            doc = convert_mongo_document(doc, for_response=True)
+            return doc
+    except Exception:
+        pass
+    return None
+
+async def get_user_outfit_advice(email: str, skip: int = 0, limit: int = 100) -> List[Dict[str, Any]]:
+    db = get_database()
+    try:
+        cursor = db.outfit_advisors.find({"email": email}).skip(skip).limit(limit).sort("created_at", -1)
+        items = []
+        async for doc in cursor:
+            doc = convert_mongo_document(doc, for_response=True)
+            items.append(doc)
+        return items
+    except Exception:
+        import traceback
+        traceback.print_exc()
+        raise
+
+async def delete_outfit_advice(record_id: str, email: str) -> bool:
+    db = get_database()
+    try:
+        res = await db.outfit_advisors.delete_one({"_id": ObjectId(record_id), "email": email})
+        return res.deleted_count > 0
+    except Exception:
+        return False
 
 # Statistics Operations
 async def get_user_statistics(email: str) -> Dict[str, Any]:

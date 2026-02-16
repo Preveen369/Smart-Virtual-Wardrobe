@@ -42,7 +42,7 @@ const FavoritesPage = ({ isDarkMode }) => {
       </div>
     );
 
-  const hasFavorites = favoriteTryon.length > 0 || favoriteWardrobe.length > 0;
+
 
   // Remove a try-on favorite
   const removeTryonFavorite = (id) => {

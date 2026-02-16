@@ -14,3 +14,4 @@ google-generativeai==0.8.5
 inference-sdk==0.9.2
 cloudinary==1.32.0
 Pillow==11.3.0
+requests==2.31.0

@@ -13,10 +13,12 @@ import FavoritesPage from "./pages/FavoritesPage";
 import HistoryPage from "./pages/HistoryPage";
 import ProfilePage from "./pages/ProfilePage";
 import HelpPage from "./pages/HelpPage";
+import OutfitAdvisorPage from "./pages/OutfitAdvisorPage";
 import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
 import { Drawer, Button, Divider } from "antd";
 import Footer from "./components/Footer";
 import ClothHangerIcon from "./assets/ClothHangerIcon";
+import { ToastContainer } from 'react-toastify';
 
 const { Header } = Layout;
 const { Title } = Typography;
@@ -312,6 +314,14 @@ function App() {
                   }
                 />
                 <Route
+                  path="/outfit-advisor"
+                  element={
+                    <PrivateRoute>
+                      <OutfitAdvisorPage isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
                   path="/favorites"
                   element={
                     <PrivateRoute>
@@ -348,17 +358,7 @@ function App() {
             {/* Toast notifications container (for react-toastify) */}
             <div>
               {/* Place ToastContainer here for global notifications */}
-              {/* eslint-disable-next-line import/no-extraneous-dependencies */}
-              {(() => {
-                try {
-                  // Dynamically import to avoid SSR issues if any
-                  // eslint-disable-next-line global-require
-                  const { ToastContainer } = require('react-toastify');
-                  return <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover theme={isDarkMode ? 'dark' : 'light'} />;
-                } catch {
-                  return null;
-                }
-              })()}
+              <ToastContainer position="top-right" autoClose={2500} hideProgressBar={false} newestOnTop closeOnClick pauseOnFocusLoss draggable pauseOnHover theme={isDarkMode ? 'dark' : 'light'} />
             </div>
             <Footer isDarkMode={isDarkMode} />
           </div>

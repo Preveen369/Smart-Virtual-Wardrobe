@@ -131,6 +131,41 @@ export const wardrobeService = {
   },
 };
 
+// Outfit Advisor / LLM integration
+export const advisorService = {
+  // Analyze outfit by sending structured description and optional image
+  analyzeOutfit: async (payload) => {
+    // payload: { description, outfit_name, outfit_type, outfit_size, outfit_season, outfit_style, image_url }
+    const response = await api.post('/api/outfit-advisor/analyze', payload);
+    return response.data;
+  },
+
+  // List saved analyses
+  listResults: async (skip = 0, limit = 50) => {
+    const response = await api.get('/api/outfit-advisor', { params: { skip, limit } });
+    return response.data;
+  },
+
+  // Get single saved analysis
+  getResult: async (id) => {
+    const response = await api.get(`/api/outfit-advisor/${id}`);
+    return response.data;
+  },
+
+  // Delete a saved analysis
+  deleteResult: async (id) => {
+    const response = await api.delete(`/api/outfit-advisor/${id}`);
+    return response.data;
+  },
+
+  // Upload an outfit image specifically for Outfit Advisor
+  uploadImage: async (file) => {
+    const form = new FormData();
+    form.append('file', file);
+    const response = await api.post('/api/outfit-advisor/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return response.data;
+  },
+};
 // Try-On Services
 export const tryOnService = {
   // Perform virtual try-on
