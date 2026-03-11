@@ -4,7 +4,7 @@ This is the backend API server for the Smart Virtual Wardrobe project, built wit
 
 ---
 
-## � Table of Contents
+## 📑 Table of Contents
 
 1. [Features](#-features)
 2. [Tech Stack](#-tech-stack)
@@ -15,7 +15,7 @@ This is the backend API server for the Smart Virtual Wardrobe project, built wit
 
 ---
 
-## �🚀 Features
+## 🚀 Features
 
 - FastAPI-based REST API with JWT authentication
 - User registration, login, profile management, and profile photo upload (stored on Cloudinary)
