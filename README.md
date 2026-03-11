@@ -27,7 +27,7 @@ Paper-ID with title: **1338 - Smart Virtual Wardrobe: AI-Powered Outfit Planner 
 
 - **📄 View IEEE Conference Paper**: 👉 [Click to Open the Research Paper (PDF)](./reports/ieee-paper-1338.pdf)
 
-- **🏅 View Presentation Certificate**: 👉 [Click to Open Presentation Certificate (PDF)](./reports/presented-certificate-1338.pdf)
+- **🏅 View Presentation Certificate**: 👉 [Click to Open Presentation Certificate (PDF)](./reports/presented-certificate-1338-preveen.pdf)
 
 - **📜 View Full Project Report**: 👉 [Click to Open Full Project Report (PHASE-1) (PDF)](./reports/project-report(phase-1).pdf)
 
