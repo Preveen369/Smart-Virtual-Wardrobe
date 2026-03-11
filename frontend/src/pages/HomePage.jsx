@@ -28,31 +28,31 @@ const HomePage = ({ isDarkMode }) => {
     },
     {
       title: "Favorites",
-      description: "Save and access your favorite outfits and styles",
+      description: "Save and access your favorite try-on outfits and wardrobe styles",
       path: "/favorites",
       color: "bg-pink-600 hover:bg-pink-700",
       icon: "❤️"
     },
     {
-      title: "History",
+      title: "Tryon-History",
       description: "View your past try-ons and fashion experiments",
       path: "/history",
       color: "bg-gray-600 hover:bg-gray-700",
       icon: "📅"
     },
     {
-      title: "Profile",
-      description: "Manage your account and personal preferences",
-      path: "/profile",
-      color: "bg-yellow-500 hover:bg-yellow-600",
-      icon: "👤"
+      title: "Avatar Generator",
+      description: "Creates 3D pro-avatar for checking fit and style",
+      path: "/avatar",
+      color: "bg-indigo-500 hover:bg-indigo-600",
+      icon: "🤖"
     },
     {
-      title: "Help & FAQ",
-      description: "Get support and answers to your questions",
-      path: "/help",
-      color: "bg-indigo-600 hover:bg-indigo-700",
-      icon: "❓"
+      title: "Style Feed",
+      description: "Discover new styles and curated outfit ideas",
+      path: "/style-feed",
+      color: "bg-yellow-600 hover:bg-yellow-600",
+      icon: "🧥"
     }
   ];
 

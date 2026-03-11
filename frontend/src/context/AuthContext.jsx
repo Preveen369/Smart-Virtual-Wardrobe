@@ -86,6 +86,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Upload a new profile photo
+  const uploadProfilePhoto = async (file) => {
+    try {
+      const updatedProfile = await authService.uploadProfilePhoto(file);
+      return { success: true, data: updatedProfile };
+    } catch (error) {
+      const errorInfo = apiUtils.handleError(error);
+      return { success: false, message: errorInfo.message };
+    }
+  };
+
   // On mount, try to restore user and token from localStorage
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -110,6 +121,7 @@ export const AuthProvider = ({ children }) => {
         logout, 
         getProfile, 
         updateProfile,
+        uploadProfilePhoto,
         loading 
       }}
     >

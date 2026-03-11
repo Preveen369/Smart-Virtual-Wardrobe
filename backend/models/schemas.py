@@ -61,6 +61,8 @@ class ProfileCreate(BaseModel):
     gender: Optional[Gender] = None
     age: Optional[int] = None
     style_preferences: List[str] = []
+    # URL for the user's profile photo (stored in Cloudinary)
+    profile_photo_url: Optional[str] = None
 
 class ProfileUpdate(BaseModel):
     first_name: Optional[str] = None
@@ -68,6 +70,7 @@ class ProfileUpdate(BaseModel):
     gender: Optional[Gender] = None
     age: Optional[int] = None
     style_preferences: Optional[List[str]] = None
+    profile_photo_url: Optional[str] = None
 
 class ProfileInDB(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
@@ -77,6 +80,7 @@ class ProfileInDB(BaseModel):
     gender: Optional[Gender] = None
     age: Optional[int] = None
     style_preferences: List[str] = []
+    profile_photo_url: Optional[str] = None
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 class ProfileResponse(BaseModel):
@@ -86,6 +90,7 @@ class ProfileResponse(BaseModel):
     gender: Optional[Gender]
     age: Optional[int]
     style_preferences: List[str]
+    profile_photo_url: Optional[str] = None
     updated_at: datetime
 
 # Wardrobe Item Models
@@ -149,21 +154,13 @@ class WardrobeItemResponse(BaseModel):
 class TryOnSessionCreate(BaseModel):
     person_image_url: str
     cloth_image_url: str
-    instructions: Optional[str] = None
-    model_type: Optional[str] = None
-    gender: Optional[Gender] = None
-    garment_type: Optional[GarmentType] = None
-    style: Optional[Style] = None
+    # Removed: model_type, gender, garment_type, style — try-on sessions no longer store these fields
 
 class TryOnSessionUpdate(BaseModel):
     person_image_url: Optional[str] = None
     cloth_image_url: Optional[str] = None
     result_image_url: Optional[str] = None
-    instructions: Optional[str] = None
-    model_type: Optional[str] = None
-    gender: Optional[Gender] = None
-    garment_type: Optional[GarmentType] = None
-    style: Optional[Style] = None
+    # Removed: model_type, gender, garment_type, style
 
 class TryOnSessionInDB(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
@@ -171,11 +168,7 @@ class TryOnSessionInDB(BaseModel):
     person_image_url: str
     cloth_image_url: str
     result_image_url: Optional[str] = None
-    instructions: Optional[str] = None
-    model_type: Optional[str] = None
-    gender: Optional[Gender] = None
-    garment_type: Optional[GarmentType] = None
-    style: Optional[Style] = None
+    # Removed: model_type, gender, garment_type, style
     created_at: datetime = Field(default_factory=datetime.utcnow)
     completed_at: Optional[datetime] = None
 
@@ -185,11 +178,7 @@ class TryOnSessionResponse(BaseModel):
     person_image_url: str
     cloth_image_url: str
     result_image_url: Optional[str]
-    instructions: Optional[str]
-    model_type: Optional[str]
-    gender: Optional[Gender]
-    garment_type: Optional[GarmentType]
-    style: Optional[Style]
+    # Removed: model_type, gender, garment_type, style
     created_at: datetime
     completed_at: Optional[datetime]
 
@@ -198,19 +187,57 @@ class VirtualTryOnItemCreate(BaseModel):
     person_image_url: str
     cloth_image_url: str
     result_image_url: str
-    result_text: Optional[str] = None
-    garment_type: Optional[GarmentType] = None
-    style: Optional[Style] = None
-    color: Optional[str] = None
+    # Removed: result_text, garment_type, style, color
+
+
+# Favorites Models
+class FavoriteType(str, Enum):
+    WARDROBE = "wardrobe"
+    TRYON = "tryon"
+    STYLEFEED = "stylefeed"
+
+class FavoriteCreate(BaseModel):
+    type: FavoriteType
+    item: Dict[str, Any]
+
+class FavoriteInDB(BaseModel):
+    id: Optional[str] = Field(None, alias="_id")
+    email: EmailStr
+    type: FavoriteType
+    item: Dict[str, Any]
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class FavoriteResponse(BaseModel):
+    id: str
+    type: FavoriteType
+    item: Dict[str, Any]
+    created_at: datetime
+    updated_at: datetime
+
+
+# Style feed models – the frontend will pull these when rendering the
+# dedicated style feed page.  We keep the payload small (card) plus a
+# reference to the originating favorite so that the UI can still perform
+# unfavourite operations without an extra lookup.
+class StyleFeedItemInDB(BaseModel):
+    id: Optional[str] = Field(None, alias="_id")
+    email: EmailStr
+    favorite_id: str
+    item: Dict[str, Any]
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class StyleFeedResponse(BaseModel):
+    id: str
+    favorite_id: str
+    card: Dict[str, Any]
+    created_at: datetime
 
 class VirtualTryOnItemUpdate(BaseModel):
     person_image_url: Optional[str] = None
     cloth_image_url: Optional[str] = None
     result_image_url: Optional[str] = None
-    result_text: Optional[str] = None
-    garment_type: Optional[GarmentType] = None
-    style: Optional[Style] = None
-    color: Optional[str] = None
+    # Removed: result_text, garment_type, style, color
 
 class VirtualTryOnItemInDB(BaseModel):
     id: Optional[str] = Field(None, alias="_id")
@@ -218,10 +245,7 @@ class VirtualTryOnItemInDB(BaseModel):
     person_image_url: str
     cloth_image_url: str
     result_image_url: str
-    result_text: Optional[str] = None
-    garment_type: Optional[GarmentType] = None
-    style: Optional[Style] = None
-    color: Optional[str] = None
+    # Removed: result_text, garment_type, style, color
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -231,10 +255,7 @@ class VirtualTryOnItemResponse(BaseModel):
     person_image_url: str
     cloth_image_url: str
     result_image_url: str
-    result_text: Optional[str]
-    garment_type: Optional[GarmentType]
-    style: Optional[Style]
-    color: Optional[str]
+    # Removed: result_text, garment_type, style, color
     created_at: datetime
     updated_at: datetime
 

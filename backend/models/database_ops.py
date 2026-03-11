@@ -353,6 +353,105 @@ async def delete_outfit_advice(record_id: str, email: str) -> bool:
     except Exception:
         return False
 
+
+# Favorites Operations
+async def create_favorite(email: str, fav_type: str, item: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Create a favorite record for a user.  When the type is "stylefeed" we also
+    insert a corresponding document into the dedicated `style_feed` collection so
+    that the style‑feed page can query a slim collection instead of scanning all
+    favorites.
+    """
+    db = get_database()
+    # sanitize item: remove any free-text fields (e.g. 'text') before storing
+    safe_item = dict(item) if isinstance(item, dict) else item
+    if isinstance(safe_item, dict):
+        safe_item.pop("text", None)
+
+    record = {
+        "email": email,
+        "type": fav_type,
+        "item": safe_item,
+        "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+    }
+    res = await db.favorites.insert_one(record)
+    record["id"] = str(res.inserted_id)
+
+    # propagate to style_feed if appropriate
+    if fav_type == "stylefeed":
+        try:
+            await create_style_feed_entry(email, record["id"], item)
+        except Exception:
+            # sync failure should not crash the entire request, but log for
+            # later inspection
+            import traceback
+            traceback.print_exc()
+    return record
+
+async def get_user_favorites(email: str, fav_type: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Return all favorite records for a user, optionally filtered by type"""
+    db = get_database()
+    query = {"email": email}
+    if fav_type:
+        query["type"] = fav_type
+
+    items = []
+    cursor = db.favorites.find(query).sort("created_at", -1)
+    async for doc in cursor:
+        doc = convert_mongo_document(doc, for_response=True)
+        items.append(doc)
+    return items
+
+async def delete_favorite(fav_id: str, email: str) -> bool:
+    """Delete a favorite by id for a given user.  We also remove any associated
+    entry from the style_feed collection so the two stay in sync.
+    """
+    db = get_database()
+    try:
+        res = await db.favorites.delete_one({"_id": ObjectId(fav_id), "email": email})
+        if res.deleted_count > 0:
+            # attempt to clean up style feed record; ignore failure as it's not
+            # critical for the user-facing operation
+            try:
+                await db.style_feed.delete_one({"favorite_id": fav_id, "email": email})
+            except Exception:
+                pass
+            return True
+        return False
+    except Exception:
+        return False
+
+# Style Feed Operations
+async def create_style_feed_entry(email: str, fav_id: str, card: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Persist a style‑feed card; references the favorite document that created it.
+
+    This collection is intentionally narrow – it only contains the cards that the
+    user actually favourited – which makes the style feed query fast.  The
+    `card` argument should mirror the `item` payload stored in the favorites
+    record.
+    """
+    db = get_database()
+    record = {
+        "email": email,
+        "favorite_id": fav_id,
+        "card": card,
+        "created_at": datetime.utcnow(),
+    }
+    res = await db.style_feed.insert_one(record)
+    record["id"] = str(res.inserted_id)
+    return record
+
+
+async def get_user_style_feed(email: str) -> List[Dict[str, Any]]:
+    """Return style‑feed entries for a user, sorted newest first."""
+    db = get_database()
+    items = []
+    cursor = db.style_feed.find({"email": email}).sort("created_at", -1)
+    async for doc in cursor:
+        doc = convert_mongo_document(doc, for_response=True)
+        items.append(doc)
+    return items
+
 # Statistics Operations
 async def get_user_statistics(email: str) -> Dict[str, Any]:
     """Get user statistics"""

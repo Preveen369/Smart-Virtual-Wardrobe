@@ -14,6 +14,8 @@ import HistoryPage from "./pages/HistoryPage";
 import ProfilePage from "./pages/ProfilePage";
 import HelpPage from "./pages/HelpPage";
 import OutfitAdvisorPage from "./pages/OutfitAdvisorPage";
+import StyleFeedPage from "./pages/StyleFeed";
+import AvatarGeneratorPage from "./pages/AvatarGeneratorPage";
 import { MenuOutlined, CloseOutlined } from "@ant-design/icons";
 import { Drawer, Button, Divider } from "antd";
 import Footer from "./components/Footer";
@@ -44,15 +46,30 @@ function AppNav({ isDarkMode, setIsDarkMode }) {
 
   const navLinksMain = [
     { to: "/", label: "Home" },
-    { to: "/tryon", label: "Try-On" },
-    { to: "/wardrobe", label: "Wardrobe" },
+    { to: "/tryon", label: "Virtual Try-On" },
+    { to: "/wardrobe", label: "My Wardrobe" },
     { to: "/favorites", label: "Favorites" },
-    { to: "/history", label: "History" },
+    { to: "/history", label: "Tryon-History" },
+    { to: "/avatar", label: "Avatar Generator" },
+    { to: "/style-feed", label: "Style Feed" },
   ];
   const navLinksAccount = [
     { to: "/profile", label: "Profile" },
     { to: "/help", label: "Help" },
   ];
+
+  // emoji icons for nav items — keep consistent across desktop + drawer
+  const navIcons = {
+    "/": "🏠",
+    "/tryon": "👗",
+    "/style-feed": "🧥",
+    "/wardrobe": "👕",
+    "/favorites": "❤️",
+    "/avatar": "🤖",
+    "/history": "📅",
+    "/profile": "👤",
+    "/help": "❓",
+  };
 
   return (
     <Header
@@ -106,10 +123,14 @@ function AppNav({ isDarkMode, setIsDarkMode }) {
                   padding: "2px 8px",
                   borderRadius: 6,
                   transition: "color 0.2s, background 0.2s",
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
                 }}
                 onMouseEnter={e => (e.target.style.color = hoverColor)}
                 onMouseLeave={e => (e.target.style.color = isActive ? activeColor : subText)}
               >
+                <span style={{ fontSize: 18, lineHeight: 1 }}>{navIcons[link.to] ?? ''}</span>
                 {link.label}
               </Link>
             );
@@ -157,7 +178,7 @@ function AppNav({ isDarkMode, setIsDarkMode }) {
             <div className="mb-2 mt-1 text-xs font-semibold uppercase tracking-wide" style={{ color: subText, paddingLeft: 2, letterSpacing: 1 }}>
               Navigation
             </div>
-            {navLinksMain.map((link, idx) => (
+            {navLinksMain.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
@@ -179,12 +200,8 @@ function AppNav({ isDarkMode, setIsDarkMode }) {
                 onMouseEnter={e => (e.target.style.color = hoverColor)}
                 onMouseLeave={e => (e.target.style.color = location.pathname === link.to ? activeColor : textColor)}
               >
-                {/* Add icons for each nav item */}
-                {idx === 0 && <span role="img" aria-label="home">🏠</span>}
-                {idx === 1 && <span role="img" aria-label="tryon">👗</span>}
-                {idx === 2 && <span role="img" aria-label="wardrobe">🧥</span>}
-                {idx === 3 && <span role="img" aria-label="favorites">❤️</span>}
-                {idx === 4 && <span role="img" aria-label="history">📅</span>}
+                {/* Icon (emoji) for this nav item */}
+                <span style={{ fontSize: 18, lineHeight: 1 }}>{navIcons[link.to] ?? ''}</span>
                 {link.label}
               </Link>
             ))}
@@ -196,7 +213,7 @@ function AppNav({ isDarkMode, setIsDarkMode }) {
               Account
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              {navLinksAccount.map((link, idx) => (
+              {navLinksAccount.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
@@ -218,8 +235,7 @@ function AppNav({ isDarkMode, setIsDarkMode }) {
                   onMouseEnter={e => (e.target.style.color = hoverColor)}
                   onMouseLeave={e => (e.target.style.color = location.pathname === link.to ? activeColor : textColor)}
                 >
-                  {idx === 0 && <span role="img" aria-label="profile">👤</span>}
-                  {idx === 1 && <span role="img" aria-label="help">❓</span>}
+                  <span style={{ fontSize: 18, lineHeight: 1 }}>{navIcons[link.to] ?? ''}</span>
                   {link.label}
                 </Link>
               ))}
@@ -302,6 +318,24 @@ function App() {
                   element={
                     <PrivateRoute>
                       <TryOnPage isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path="/avatar"
+                  element={
+                    <PrivateRoute>
+                      <AvatarGeneratorPage isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
+                    </PrivateRoute>
+                  }
+                />
+
+                <Route
+                  path="/style-feed"
+                  element={
+                    <PrivateRoute>
+                      <StyleFeedPage isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
                     </PrivateRoute>
                   }
                 />

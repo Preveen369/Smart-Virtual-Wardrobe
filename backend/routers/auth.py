@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, UploadFile, File
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 import os
 from typing import List
+
+import cloudinary.uploader
 
 from models.schemas import (
     UserCreate, UserLogin, UserResponse, ProfileCreate, ProfileUpdate,
@@ -102,6 +104,7 @@ async def get_profile(email: str = Depends(verify_token)):
                 gender=None,
                 age=None,
                 style_preferences=[],
+                profile_photo_url=None,
                 updated_at=datetime.utcnow()
             )
         profile_dict = profile.model_dump(by_alias=True)
@@ -128,7 +131,8 @@ async def update_profile_endpoint(
             last_name=profile_update.last_name or "",
             gender=profile_update.gender,
             age=profile_update.age,
-            style_preferences=profile_update.style_preferences or []
+            style_preferences=profile_update.style_preferences or [],
+            profile_photo_url=profile_update.profile_photo_url
         )
         
         # Use upsert to create or update profile
@@ -188,14 +192,45 @@ async def get_current_user(email: str = Depends(verify_token)):
             detail=f"Failed to get user: {str(e)}"
         )
 
-@router.delete("/account", response_model=SuccessResponse)
-async def delete_account(email: str = Depends(verify_token)):
-    """Delete user account (placeholder for future implementation)"""
-    # This is a placeholder - in a real implementation, you would:
-    # 1. Delete user from database
-    # 2. Delete all associated data (wardrobe items, try-on sessions, etc.)
-    # 3. Handle cleanup of uploaded files
-    return SuccessResponse(
-        success=True,
-        message="Account deletion endpoint - implementation pending"
-    )
+@router.post("/profile/photo", response_model=ProfileResponse)
+async def upload_profile_photo(
+    file: UploadFile = File(...),
+    email: str = Depends(verify_token)
+):
+    """Upload a new profile photo, save to Cloudinary, and update profile"""
+    try:
+        file_content = await file.read()
+        # upload to cloudinary
+        upload_result = cloudinary.uploader.upload(
+            file_content,
+            folder="virtual_wardrobe/profile_photos",
+            public_id=f"{email}_profile",
+            overwrite=True,
+            resource_type="image"
+        )
+        photo_url = upload_result.get("secure_url")
+        if not photo_url:
+            raise Exception("Failed to obtain secure_url from Cloudinary response")
+        # update profile with new photo url (preserving existing fields)
+        # Fetch current profile if it exists
+        existing = await get_profile_by_email(email)
+        if existing:
+            # use update_profile helper to set photo_url only
+            await update_profile(email, ProfileUpdate(profile_photo_url=photo_url))
+            updated_profile = await get_profile_by_email(email)
+        else:
+            # create a new profile with just the photo
+            profile_create = ProfileCreate(
+                first_name="",
+                last_name="",
+                profile_photo_url=photo_url,
+                style_preferences=[]
+            )
+            updated_profile = await upsert_profile(email, profile_create)
+        profile_dict = updated_profile.model_dump(by_alias=True)
+        if "_id" in profile_dict:
+            profile_dict["id"] = profile_dict.pop("_id")
+        return ProfileResponse(**profile_dict)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Photo upload failed: {str(e)}")
+

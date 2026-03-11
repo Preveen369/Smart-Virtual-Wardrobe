@@ -5,8 +5,10 @@ from utils.base64_helpers import array_buffer_to_base64
 from dotenv import load_dotenv
 import os
 import cloudinary.uploader
-from google import genai
-from google.genai import types
+from gradio_client import Client, handle_file
+from gradio_client.exceptions import AppError
+import httpx
+import tempfile
 import traceback
 import base64
 from routers.auth import verify_token
@@ -23,21 +25,17 @@ load_dotenv()
 
 router = APIRouter()
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-if not GEMINI_API_KEY:
-    raise ValueError("Missing GEMINI_API_KEY in .env")
-
-client = genai.Client(api_key=GEMINI_API_KEY)
+GRADIO_TRYON_URL = os.getenv("GRADIO_TRYON_URL", "https://ai-modelscope-kolors-virtual-try-on.ms.fun/")
+# initialize a Gradio client with a generous timeout for uploads
+client = Client(GRADIO_TRYON_URL, httpx_kwargs={"timeout": httpx.Timeout(100)})
 
 @router.post("/try-on")
 async def try_on(
     person_image: UploadFile = File(...),
     cloth_image: UploadFile = File(...),
     instructions: str = Form("None"),
-    model_type: str = Form(""),
-    gender: str = Form(""),
-    garment_type: str = Form(""),
-    style: str = Form(""),
+    seed: int = Form(0),
+    randomize_seed: bool = Form(False),
     email: str = Depends(verify_token),
 ):
     """Perform virtual try-on with image generation and store results in Cloudinary"""
@@ -71,7 +69,7 @@ async def try_on(
             overwrite=False,
             resource_type="image"
         )
-        
+
         cloth_upload_result = cloudinary.uploader.upload(
             cloth_bytes,
             folder=f"{folder}/cloth_images",
@@ -80,130 +78,116 @@ async def try_on(
             resource_type="image"
         )
 
-        garment_description_map = {
-            "saree": "Ensure realistic draping from shoulder to foot, and match folds with body pose. Do not crop or misalign the pallu.",
-            "churidar": "Fit the garment along the legs with tight ankle fitting and tunic on top. Avoid overlapping distortions.",
-            "skirt": "Ensure waist-level fitting with correct flare, length, and folds aligned to posture.",
-            "coat": "Layer the coat over existing clothing or upper body with realistic overlap and sleeve alignment.",
-            "shirt": "Fit naturally on torso with collar, sleeve and hem properly aligned.",
-            "tshirt": "Match torso tightly and preserve shoulder seams.",
-            "pants": "Follow leg contours and match ankle length.",
-            "dress": "Render from shoulders to knees/ankle with natural fall.",
-            "jacket": "Overlay the torso with zip/button alignment preserved.",
-        }
-
-        garment_notes = garment_description_map.get(garment_type.lower(), "Apply the garment realistically over the model image.")
-
-        prompt = f"""
-{{
-  "objective": "Generate a realistic virtual try-on image where the clothing from 'garment_image' is transferred onto the person in 'person_image', preserving the face, pose, and background of the original image perfectly.",
-  "task": "Virtual Try-On with Identity and Background Preservation",
-  "inputs": {{
-    "person_image": {{
-      "description": "Image of a real person. The output must retain the full face, expression, and original background exactly as in this image. Do not replace, reconstruct, or modify the face or background.",
-      "id": "input_1"
-    }},
-    "garment_image": {{
-      "description": "Image of the garment (flat lay, mannequin, or modeled). Extract only the garment texture, color, and style. Discard original garment image background or mannequin.",
-      "id": "input_2"
-    }}
-  }},
-  "processing_steps": [
-    "Segment and extract garment from garment_image (input_2) with high fidelity.",
-    "Analyze the person_image (input_1) to detect pose, body region, and position to fit the garment.",
-    "Retain and protect all facial features, hair, and background elements from the original person_image.",
-    "Overlay the extracted garment onto the person, ensuring natural drape, folds, and lighting consistency with the person_image.",
-    "Do not alter the background or generate a new one.",
-    "{garment_notes}"
-  ],
-  "output_requirements": {{
-    "description": "Generate a realistic image of the person from person_image wearing the garment from garment_image. The face and background must be unchanged.",
-    "format": "PNG or JPG",
-    "quality": "High-resolution and photorealistic"
-  }},
-  "core_constraints": {{
-    "identity_lock": {{
-      "priority": "ABSOLUTE",
-      "instruction": "Face and head must be left exactly as in the original image (input1). No generation, replacement, or modification is allowed."
-    }},
-    "garment_fidelity": {{
-      "priority": "CRITICAL",
-      "instruction": "Maintain the exact visual properties (color, pattern, texture, style) of the garment."
-    }},
-    "background_preservation": {{
-      "priority": "CRITICAL",
-      "instruction": "Keep the exact background from the person_image. No generation or changes allowed."
-    }},
-    "pose_alignment": {{
-      "priority": "HIGH",
-      "instruction": "Ensure the garment adapts to the existing pose and body shape from the person_image."
-    }},
-    "lighting_match": {{
-      "priority": "HIGH",
-      "instruction": "Match lighting and shadows of the garment to the person_image so it looks naturally worn."
-    }}
-  }},
-  "prohibitions": [
-    "Do not change or regenerate the face or background.",
-    "Do not modify garment design or color.",
-    "Do not hallucinate body pose or garment geometry.",
-    "Do not change the person's pose."
-  ],
-  "contextual_tags": {{
-    "Model Type": "{model_type}",
-    "Gender": "{gender}",
-    "Garment Type": "{garment_type}",
-    "Style": "{style}",
-    "Special Instructions": "None"
-  }},
-  "output_caption": "Explain how the garment fits on the person, note realism and drape quality, and mention any visible misalignment."
-}}
-"""
-
-        contents = [
-            prompt,
-            types.Part.from_bytes(data=user_b64, mime_type=person_image.content_type),
-            types.Part.from_bytes(data=cloth_b64, mime_type=cloth_image.content_type),
-        ]
-
-        response = client.models.generate_content(
-            model="gemini-2.0-flash-exp-image-generation",
-            contents=contents,
-            config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"])
-        )
-
-        image_data = None
-        text_response = "No Description available."
-        if response.candidates and len(response.candidates) > 0:
-            parts = response.candidates[0].content.parts
-            for part in parts:
-                if hasattr(part, "inline_data") and part.inline_data:
-                    image_data = part.inline_data.data
-                    image_mime_type = getattr(part.inline_data, "mime_type", "image/png")
-                elif hasattr(part, "text") and part.text:
-                    text_response = part.text
-
+        # Call the Gradio try-on model using temporary files
+        person_tmp = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(person_image.filename or "")[1] or ".jpg")
+        cloth_tmp = tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(cloth_image.filename or "")[1] or ".jpg")
         image_url = None
-        if image_data:
-            # Upload result image to Cloudinary
-            result_upload_result = cloudinary.uploader.upload(
-                image_data,
-                folder=f"{folder}/results",
-                public_id=f"{email}_tryon_result_{person_image.filename.split('.')[0]}_{cloth_image.filename.split('.')[0]}",
-                overwrite=False,
-                resource_type="image"
-            )
-            image_url = result_upload_result["secure_url"]
+        text_response = None
+        try:
+            person_tmp.write(user_bytes)
+            person_tmp.flush()
+            cloth_tmp.write(cloth_bytes)
+            cloth_tmp.flush()
+
+            try:
+                raw_result = client.predict(
+                    person_img=handle_file(person_tmp.name),
+                    garment_img=handle_file(cloth_tmp.name),
+                    seed=seed,
+                    randomize_seed=randomize_seed,
+                    api_name="/tryon",
+                )
+            except AppError as ae:
+                # propagate sensible error to frontend
+                raise HTTPException(status_code=503, detail=f"External try-on service busy: {ae}")
+
+            if isinstance(raw_result, tuple):
+                result = {"output": raw_result[0], "_tuple": raw_result}
+            else:
+                result = raw_result
+
+            def _maybe_upload_output(out_val):
+                nonlocal image_url
+                if not out_val:
+                    return
+                # raw bytes from model
+                if isinstance(out_val, (bytes, bytearray)):
+                    try:
+                        upload = cloudinary.uploader.upload(
+                            out_val,
+                            folder=f"{folder}/results",
+                            public_id=f"{email}_tryon_result_{person_image.filename.split('.')[0]}_{cloth_image.filename.split('.')[0]}",
+                            overwrite=False,
+                            resource_type="image"
+                        )
+                        image_url = upload.get("secure_url")
+                        return
+                    except Exception:
+                        pass
+                if isinstance(out_val, str) and os.path.exists(out_val):
+                    with open(out_val, "rb") as f:
+                        data = f.read()
+                    upload = cloudinary.uploader.upload(
+                        data,
+                        folder=f"{folder}/results",
+                        public_id=f"{email}_tryon_result_{person_image.filename.split('.')[0]}_{cloth_image.filename.split('.')[0]}",
+                        overwrite=False,
+                        resource_type="image"
+                    )
+                    image_url = upload.get("secure_url")
+                elif isinstance(out_val, str) and out_val.startswith("http"):
+                    image_url = out_val
+                elif isinstance(out_val, str) and out_val.startswith("data:"):
+                    try:
+                        header, b64 = out_val.split(",", 1)
+                        data = base64.b64decode(b64)
+                        upload = cloudinary.uploader.upload(
+                            data,
+                            folder=f"{folder}/results",
+                            public_id=f"{email}_tryon_result_{person_image.filename.split('.')[0]}_{cloth_image.filename.split('.')[0]}",
+                            overwrite=False,
+                            resource_type="image"
+                        )
+                        image_url = upload.get("secure_url")
+                    except Exception:
+                        pass
+
+            # Handle various result shapes: dict, tuple/list, raw string path/url, or bytes
+            if isinstance(result, dict):
+                _maybe_upload_output(result.get("output") or result.get("image") or result.get("image_url"))
+                text_response = result.get("text") or result.get("caption")
+            elif isinstance(result, (list, tuple)):
+                for item in result:
+                    _maybe_upload_output(item)
+            elif isinstance(result, (bytes, bytearray)):
+                _maybe_upload_output(result)
+            elif isinstance(result, str):
+                _maybe_upload_output(result)
+
+        finally:
+            try:
+                person_tmp.close()
+            except Exception:
+                pass
+            try:
+                cloth_tmp.close()
+            except Exception:
+                pass
+            # remove temporary files
+            try:
+                os.unlink(person_tmp.name)
+            except Exception:
+                pass
+            try:
+                os.unlink(cloth_tmp.name)
+            except Exception:
+                pass
 
         # Create a try-on session to track this operation
         session_data = TryOnSessionCreate(
             person_image_url=person_upload_result["secure_url"],
             cloth_image_url=cloth_upload_result["secure_url"],
             instructions=instructions,
-            model_type=model_type,
-            gender=gender,
-            garment_type=garment_type,
-            style=style
         )
         
         tryon_session = await create_tryon_session(email, session_data)

@@ -13,13 +13,17 @@ const { Title, Text } = Typography;
 const { Option } = Select;
 
 const ProfilePage = ({ isDarkMode }) => {
-  const { token, getProfile, updateProfile } = useAuth();
+  const { token, getProfile, updateProfile, uploadProfilePhoto } = useAuth();
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [form] = Form.useForm();
+
+  const [photoFile, setPhotoFile] = useState(null);
+  const [photoPreview, setPhotoPreview] = useState(null);
+  const fileInputRef = React.useRef(null);
 
   const bgColor = isDarkMode ? "#0f0f0f" : "#f9fafb";
   const cardColor = isDarkMode ? "#1c1c1c" : "#ffffff";
@@ -34,6 +38,7 @@ const ProfilePage = ({ isDarkMode }) => {
         if (result.success) {
           setProfile(result.data);
           form.setFieldsValue(result.data);
+          setPhotoPreview(result.data.profile_photo_url || null);
         } else {
           toast.error(result.message);
         }
@@ -53,11 +58,29 @@ const ProfilePage = ({ isDarkMode }) => {
   const handleSave = async (values) => {
     setSaving(true);
     try {
-      const result = await updateProfile(values);
+      let updated = profile;
+
+      // if user chose a new photo, upload first
+      if (photoFile) {
+        const photoResult = await uploadProfilePhoto(photoFile);
+        if (photoResult.success) {
+          updated = photoResult.data;
+          setPhotoPreview(updated.profile_photo_url || null);
+        } else {
+          toast.error(photoResult.message);
+          setSaving(false);
+          return;
+        }
+      }
+
+      // now update other profile fields
+      const result = await updateProfile({ ...values, profile_photo_url: updated?.profile_photo_url });
       if (result.success) {
         setProfile(result.data);
+        setPhotoPreview(result.data.profile_photo_url || null);
         toast.success("Profile updated successfully");
         setIsEditing(false);
+        setPhotoFile(null);
       } else {
         toast.error(result.message);
       }
@@ -71,6 +94,8 @@ const ProfilePage = ({ isDarkMode }) => {
 
   const handleCancel = () => {
     form.setFieldsValue(profile);
+    setPhotoPreview(profile?.profile_photo_url || null);
+    setPhotoFile(null);
     setIsEditing(false);
   };
 
@@ -131,9 +156,34 @@ const ProfilePage = ({ isDarkMode }) => {
               >
                 <Avatar
                   size={120}
-                  icon={<UserOutlined />}
+                  src={photoPreview}
+                  icon={!photoPreview && <UserOutlined />}
                   style={{ marginBottom: 18, background: "linear-gradient(135deg, #0ea5e9 60%, #38bdf8 100%)", color: "#fff" }}
                 />
+                {isEditing && (
+                  <div>
+                    <Button
+                      type="link"
+                      onClick={() => fileInputRef.current.click()}
+                      style={{ padding: 0, fontSize: '0.9rem' }}
+                    >
+                      Change Photo
+                    </Button>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={fileInputRef}
+                      style={{ display: 'none' }}
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setPhotoFile(file);
+                          setPhotoPreview(URL.createObjectURL(file));
+                        }
+                      }}
+                    />
+                  </div>
+                )}
                 <Title level={3} style={{ color: textColor, marginBottom: 6, fontWeight: 700 }}>
                   {profile?.first_name || ""} {profile?.last_name || ""}
                 </Title>

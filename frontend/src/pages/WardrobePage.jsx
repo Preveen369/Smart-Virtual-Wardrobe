@@ -5,13 +5,12 @@ import ImageUpload from "../components/ImageUpload";
 import { Link } from 'react-router-dom';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { wardrobeService, apiUtils } from "../services/api";
+import { wardrobeService, apiUtils, favoritesService } from "../services/api";
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const FAVORITE_WARDROBE_KEY = "favorite_wardrobe_items";
 
 const WardrobePage = ({ isDarkMode }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -26,13 +25,15 @@ const WardrobePage = ({ isDarkMode }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [wardrobeFavorites, setWardrobeFavorites] = useState([]);
 
   const bgColor = isDarkMode ? "#0f0f0f" : "#f9fafb";
   const textColor = isDarkMode ? "#f3f4f6" : "#1f2937";
 
-  // Load wardrobe items from database
+  // Load wardrobe items and favorites from database
   useEffect(() => {
     loadWardrobeItems();
+    loadWardrobeFavorites();
   }, []);
 
   const loadWardrobeItems = async () => {
@@ -45,6 +46,15 @@ const WardrobePage = ({ isDarkMode }) => {
       toast.error(errorInfo.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadWardrobeFavorites = async () => {
+    try {
+      const favs = await favoritesService.list('wardrobe');
+      setWardrobeFavorites(favs);
+    } catch (err) {
+      console.error('failed to load wardrobe favorites', err);
     }
   };
 
@@ -253,21 +263,29 @@ const WardrobePage = ({ isDarkMode }) => {
   function WardrobeGrid({ wardrobe }) {
     // Helper to check if item is favorite
     const isFavorite = (item) => {
-      const favs = JSON.parse(localStorage.getItem(FAVORITE_WARDROBE_KEY) || "[]");
-      return favs.some((fav) => fav.id === item.id);
+      return wardrobeFavorites.some((f) => f.item.id === item.id);
     };
     
     // Helper to toggle favorite
-    const toggleFavorite = (item) => {
-      let favs = JSON.parse(localStorage.getItem(FAVORITE_WARDROBE_KEY) || "[]");
-      if (isFavorite(item)) {
-        favs = favs.filter((fav) => fav.id !== item.id);
-      } else {
-        favs = [item, ...favs];
+    const toggleFavorite = async (item) => {
+      try {
+        if (isFavorite(item)) {
+          // find fav record
+          const record = wardrobeFavorites.find((f) => f.item.id === item.id);
+          if (record) {
+            await favoritesService.delete(record.id);
+            setWardrobeFavorites((prev) => prev.filter((f) => f.id !== record.id));
+          }
+        } else {
+          const favObj = { ...item };
+          const created = await favoritesService.create('wardrobe', favObj);
+          setWardrobeFavorites((prev) => [created, ...prev]);
+        }
+        // force re-render list (so heart toggles)
+        setWardrobe((w) => [...w]);
+      } catch (err) {
+        console.error('toggle favorite error', err);
       }
-      localStorage.setItem(FAVORITE_WARDROBE_KEY, JSON.stringify(favs));
-      // Force re-render
-      setWardrobe((w) => [...w]);
     };
 
     return (
@@ -452,6 +470,23 @@ const WardrobePage = ({ isDarkMode }) => {
               >
                 Refresh
               </Button>
+              <Link to="/style-feed">
+                <Button
+                  type="default"
+                  style={{
+                    marginLeft: 8,
+                    borderRadius: 999,
+                    fontWeight: 700,
+                    fontSize: '0.95rem',
+                    padding: '0.6rem 1.4rem',
+                    border: isDarkMode ? '1px solid #38bdf8' : '1px solid #0ea5e9',
+                    color: isDarkMode ? '#38bdf8' : '#0ea5e9',
+                    background: 'transparent',
+                  }}
+                >
+                  Style Feed
+                </Button>
+              </Link>
               <Link to="/outfit-advisor">
                 <Button
                   type="default"

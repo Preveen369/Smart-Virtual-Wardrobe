@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Configure axios defaults
-const API_BASE_URL = 'http://localhost:8000';
+export const API_BASE_URL = 'http://localhost:8000';
 
 // Create axios instance with default config
 const api = axios.create({
@@ -64,9 +64,63 @@ export const authService = {
     return response.data;
   },
 
+  // Upload or change profile photo
+  uploadProfilePhoto: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/profile/photo', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
   // Get current user info
   getCurrentUser: async () => {
     const response = await api.get('/me');
+    return response.data;
+  },
+};
+
+// Avatar Services
+export const avatarService = {
+  generateAvatar: async (prompt, file) => {
+    const formData = new FormData();
+    formData.append('prompt', prompt);
+    if (file) {
+      formData.append('file', file);
+    }
+    const response = await api.post('/api/avatar', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+};
+
+// 3D/Video Generation Services
+export const threeDService = {
+  // full pipeline: video + glb
+  generate: async (file, includeGlb = true) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const query = includeGlb ? '' : '?include_glb=false';
+    const response = await api.post(`/generate-3d${query}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  // convenience for video-only call
+  generateVideo: async (file) => {
+    return threeDService.generate(file, false);
+  },
+
+  // simplified fast endpoint that returns whatever the HF service returns
+  generateFast: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/generate-3d-fast', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   },
 };
@@ -207,6 +261,35 @@ export const tryOnService = {
   // Delete try-on session
   deleteSession: async (sessionId) => {
     const response = await api.delete(`/api/try-on/sessions/${sessionId}`);
+    return response.data;
+  },
+};
+
+// Favorites service (server-backed)
+export const favoritesService = {
+  list: async (type) => {
+    const params = {};
+    if (type) params.type = type;
+    const response = await api.get('/api/favorites', { params });
+    return response.data;
+  },
+  create: async (type, item) => {
+    const response = await api.post('/api/favorites', { type, item });
+    return response.data;
+  },
+  delete: async (favId) => {
+    const response = await api.delete(`/api/favorites/${favId}`);
+    return response.data;
+  },
+};
+
+// A narrower service for the standalone style-feed collection.
+// The backend keeps this collection in sync with the favorites table when
+// `type` is "stylefeed" so the front end can hit a slim endpoint when
+// rendering the style feed page.
+export const styleFeedService = {
+  list: async () => {
+    const response = await api.get('/api/stylefeed');
     return response.data;
   },
 };

@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Select } from 'antd';
+// removed Select dropdowns per request
 import {
   Layout,
   ConfigProvider,
@@ -24,12 +24,11 @@ import {
   HeartFilled,
 } from "@ant-design/icons";
 import ImageUpload from "../components/ImageUpload";
-import { tryOnService, apiUtils } from "../services/api";
+import { tryOnService, apiUtils, favoritesService } from "../services/api";
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
-const FAVORITE_TRYON_KEY = "favorite_tryon_results";
 
 function TryOnPage({ isDarkMode }) {
   const [personImage, setPersonImage] = useState(null);
@@ -38,15 +37,11 @@ function TryOnPage({ isDarkMode }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [tryonFavorites, setTryonFavorites] = useState([]);
 
-  const [modelType, setModelType] = useState("");
-  const [gender, setGender] = useState("");
-  const [garmentType, setGarmentType] = useState("");
-  const [style, setStyle] = useState("");
+  // dropdown fields removed
 
-  const { Option } = Select;
-
-  const resultRef = useRef(null);
+  
 
   const { defaultAlgorithm, darkAlgorithm } = theme;
 
@@ -54,30 +49,26 @@ function TryOnPage({ isDarkMode }) {
     localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
   }, [isDarkMode]);
 
+  // load current favorites once
   useEffect(() => {
-    if (result && resultRef.current) {
-      resultRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [result]);
-
-  // Listen for storage changes to sync favorite status across tabs/pages
-  useEffect(() => {
-    const syncFavorite = () => {
-      if (result) {
-        const favs = JSON.parse(localStorage.getItem(FAVORITE_TRYON_KEY) || "[]");
-        setIsFavorite(!!favs.find((item) => item.id === result.id));
+    const loadFavs = async () => {
+      try {
+        const favs = await favoritesService.list('tryon');
+        setTryonFavorites(favs);
+      } catch (err) {
+        console.error('failed to load tryon favorites', err);
       }
     };
-    window.addEventListener('storage', syncFavorite);
-    return () => window.removeEventListener('storage', syncFavorite);
-  }, [result]);
+    loadFavs();
+  }, []);
 
+  // update isFavorite when result or favorites change
   useEffect(() => {
     if (result) {
-      const favs = JSON.parse(localStorage.getItem(FAVORITE_TRYON_KEY) || "[]");
-      setIsFavorite(!!favs.find((item) => item.id === result.id));
+      const fav = tryonFavorites.find((f) => f.item.id === result.id);
+      setIsFavorite(!!fav);
     }
-  }, [result]);
+  }, [result, tryonFavorites]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,10 +82,7 @@ function TryOnPage({ isDarkMode }) {
     formData.append("person_image", personImage);
     formData.append("cloth_image", clothImage);
     formData.append("instructions", instructions);
-    formData.append("model_type", modelType || "");
-    formData.append("gender", gender || "");
-    formData.append("garment_type", garmentType || "");
-    formData.append("style", style || "");
+    // dropdown fields removed; backend will use defaults
 
     try {
       // Perform try-on
@@ -122,20 +110,25 @@ function TryOnPage({ isDarkMode }) {
     }
   };
 
-  const handleFavorite = () => {
+  const handleFavorite = async () => {
     if (!result) return;
-    let favs = JSON.parse(localStorage.getItem(FAVORITE_TRYON_KEY) || "[]");
-    let updated;
-    if (isFavorite) {
-      updated = favs.filter((item) => item.id !== result.id);
-      setIsFavorite(false);
-    } else {
-      updated = [result, ...favs];
-      setIsFavorite(true);
+    try {
+      if (isFavorite) {
+        const rec = tryonFavorites.find((f) => f.item.id === result.id);
+        if (rec) {
+          await favoritesService.delete(rec.id);
+          setTryonFavorites((prev) => prev.filter((f) => f.id !== rec.id));
+          setIsFavorite(false);
+        }
+      } else {
+        const favObj = { ...result };
+        const created = await favoritesService.create('tryon', favObj);
+        setTryonFavorites((prev) => [created, ...prev]);
+        setIsFavorite(true);
+      }
+    } catch (err) {
+      console.error('favorite toggle error', err);
     }
-    localStorage.setItem(FAVORITE_TRYON_KEY, JSON.stringify(updated));
-    // Dispatch a storage event for cross-tab sync
-    window.dispatchEvent(new Event('storage'));
   };
 
   const bgColor = isDarkMode ? "#0f0f0f" : "#f9fafb";
@@ -208,37 +201,7 @@ function TryOnPage({ isDarkMode }) {
                       isDarkMode={isDarkMode}
                     />
 
-                    <div className="mt-7 space-y-4">
-                      {/* Model Type */}
-                      <div>
-                        <Text style={{ color: subText, fontWeight: 500 }}>Model Type</Text>
-                        <Select
-                          placeholder="Select model type"
-                          style={{ width: "100%", marginTop: 6, borderRadius: 8 }}
-                          value={modelType}
-                          onChange={setModelType}
-                        >
-                          <Option value="top">Top Half</Option>
-                          <Option value="bottom">Bottom Half</Option>
-                          <Option value="full">Full Body</Option>
-                        </Select>
-                      </div>
-
-                      {/* Gender */}
-                      <div>
-                        <Text style={{ color: subText, fontWeight: 500 }}>Gender</Text>
-                        <Select
-                          placeholder="Select gender"
-                          style={{ width: "100%", marginTop: 6, borderRadius: 8 }}
-                          value={gender}
-                          onChange={setGender}
-                        >
-                          <Option value="male">Male</Option>
-                          <Option value="female">Female</Option>
-                          <Option value="other">Other</Option>
-                        </Select>
-                      </div>
-                    </div>
+                    <div className="mt-7" />
                   </div>
                 </Col>
 
@@ -267,45 +230,7 @@ function TryOnPage({ isDarkMode }) {
                       isDarkMode={isDarkMode}
                     />
 
-                    <div className="mt-7 space-y-4">
-                      {/* Garment Type */}
-                      <div>
-                        <Text style={{ color: subText, fontWeight: 500 }}>Garment Type</Text>
-                        <Select
-                          placeholder="Select garment type"
-                          style={{ width: "100%", marginTop: 6, borderRadius: 8 }}
-                          value={garmentType}
-                          onChange={setGarmentType}
-                        >
-                          <Option value="shirt">Shirt</Option>
-                          <Option value="pants">Pants</Option>
-                          <Option value="jacket">Jacket</Option>
-                          <Option value="dress">Dress</Option>
-                          <Option value="tshirt">T-shirt</Option>
-                          <Option value="saree">Saree</Option>
-                          <Option value="churidar">Churidar</Option>
-                          <Option value="skirt">Skirt</Option>
-                          <Option value="coat">Coat</Option>
-                        </Select>
-
-                      </div>
-
-                      {/* Style */}
-                      <div>
-                        <Text style={{ color: subText, fontWeight: 500 }}>Style</Text>
-                        <Select
-                          placeholder="Select style"
-                          style={{ width: "100%", marginTop: 6, borderRadius: 8 }}
-                          value={style}
-                          onChange={setStyle}
-                        >
-                          <Option value="casual">Casual</Option>
-                          <Option value="ethnic">Ethnic</Option>
-                          <Option value="formal">Formal</Option>
-                          <Option value="party">Party</Option>
-                        </Select>
-                      </div>
-                    </div>
+                    <div className="mt-7" />
                   </div>
                 </Col>
               </Row>
@@ -355,7 +280,7 @@ function TryOnPage({ isDarkMode }) {
             </form>
 
             {result && (
-              <div ref={resultRef} className="mt-20">
+              <div className="mt-20">
                 <Divider />
                 
                 <div className="flex justify-center">
@@ -366,9 +291,13 @@ function TryOnPage({ isDarkMode }) {
                       style={{
                         borderRadius: 16,
                         boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
-                        maxHeight: 480,
+                        height: 480,
+                        width: 'auto',
+                        objectFit: 'contain',
                         display: 'block',
                       }}
+                      draggable={false}
+                      loading="lazy"
                     />
                     {/* Heart (Favorite) Button inside the image */}
                     {isFavorite ? (

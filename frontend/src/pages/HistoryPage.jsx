@@ -28,7 +28,7 @@ const HistoryPage = ({ isDarkMode }) => {
           id: session.id,
           resultImage: session.result_image_url,
           text: session.result_text,
-          timestamp: new Date(session.created_at).toLocaleString(),
+          timestamp: new Date(session.created_at).toLocaleString("en-IN"),
           completed_at: session.completed_at
         })).filter(session => session.resultImage); // Only show completed sessions
         

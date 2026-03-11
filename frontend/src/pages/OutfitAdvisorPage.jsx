@@ -130,21 +130,47 @@ const OutfitAdvisorPage = ({ isDarkMode }) => {
   const pageBg = isDarkMode ? '#0f0f0f' : '#f9fafb';
   const cardBg = isDarkMode ? '#18181b' : '#fff';
   const textColor = isDarkMode ? '#e6eef8' : '#0f172a';
+  const subText = isDarkMode ? '#9ca3af' : '#4b5563';
+  const borderColor = isDarkMode ? '#27272a' : '#e5e7eb';
 
   return (
     <Layout style={{ minHeight: '100vh', background: pageBg }}>
       <Content style={{ padding: '2rem 2.5rem' }}>
         <ToastContainer theme={isDarkMode ? 'dark' : 'light'} />
         <div className="max-w-4xl mx-auto" style={{ paddingLeft: 12, paddingRight: 12 }}>
-          <div style={{ textAlign: 'center', marginBottom: 18 }}>
-            <Title level={2} style={{ color: textColor, fontWeight: 800 }}>Outfit Advisor</Title>
-            <Text style={{ color: isDarkMode ? '#9ca3af' : '#4b5563' }}>Select items, supply context, and get an AI evaluation.</Text>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <Title
+              level={1}
+              style={{
+                color: textColor,
+                margin: "24px 0 16px 0",
+                fontSize: "2.6rem",
+                fontWeight: 800,
+                letterSpacing: 0.8,
+                lineHeight: 1.1,
+              }}
+            >
+              <span style={{ color: "#0ea5e9", borderBottom: "4px solid #0ea5e9", paddingBottom: 4 }}>
+                Outfit Advisor
+              </span>
+            </Title>
+            <Text
+              style={{
+                color: isDarkMode ? '#9ca3af' : '#4b5563',
+                fontSize: "1.1rem",
+                display: "block",
+                fontWeight: 500,
+                marginTop: 12,
+              }}
+            >
+              Select items, supply context, and get an AI evaluation.
+            </Text>
           </div>
 
           <Row gutter={16} style={{ marginTop: 0 }}>
             {/* Left column: inputs (stack on small screens) */}
             <Col xs={24} md={12} style={{ marginBottom: 16 }}>
-              <Card style={{ background: cardBg, borderRadius: 14, padding: '12px 18px', boxShadow: isDarkMode ? '0 6px 18px #0008' : '0 6px 18px #e6f7ff' }}>
+              <Card style={{ background: cardBg, borderRadius: 20, padding: '10px 10px', boxShadow: isDarkMode ? '0 2px 16px #0006' : '0 2px 16px #0ea5e933' }}>
                 {/* Top/Bottom/Shoes selection removed — outfit fields below */}
 
                 <Row gutter={16} style={{ marginTop: 8 }}>
@@ -204,11 +230,45 @@ const OutfitAdvisorPage = ({ isDarkMode }) => {
                   <ImageUpload onImageChange={onImageChange} isDarkMode={isDarkMode} height={220} />
                 </div>
 
-                <div style={{ display: 'flex', gap: 12, marginTop: 18 }}>
-                  <Button type="primary" onClick={handleAnalyze} disabled={sending} style={{ borderRadius: 999 }}>
-                    {sending ? <span><Spin size="small" />&nbsp;Analyzing...</span> : 'Analyze Outfit' }
+                <div style={{ display: 'flex', gap: 12, marginTop: 18, alignItems: 'center' }}>
+                  <Button
+                    type="primary"
+                    onClick={handleAnalyze}
+                    disabled={sending}
+                    style={{
+                      height: 48,
+                      minWidth: 180,
+                      fontSize: 16,
+                      borderRadius: 999,
+                      fontWeight: 700,
+                      background: 'linear-gradient(90deg, #0ea5e9 60%, #38bdf8 100%)',
+                      boxShadow: '0 2px 12px #0ea5e955',
+                      border: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 8,
+                      padding: '0 1rem'
+                    }}
+                  >
+                    {sending ? <span style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}><Spin size="small" />Analyzing...</span> : 'Analyze Outfit'}
                   </Button>
-                  <Button onClick={() => { setNameField(''); setTypeField(null); setSizeField(null); setSeasonField(null); setStyleField(null); setSelectedImageFile(null); setUploadedImageUrl(null); setResponse(null); }}>
+                  <Button
+                    onClick={() => { setNameField(''); setTypeField(null); setSizeField(null); setSeasonField(null); setStyleField(null); setSelectedImageFile(null); setUploadedImageUrl(null); setResponse(null); }}
+                    style={{
+                      borderRadius: 999,
+                      minWidth: 160,
+                      height: 48,
+                      fontSize: 16,
+                      border: `1px solid #e5e7eb`,
+                      background: 'transparent',
+                      fontWeight: 700,
+                      color: '#6b7280',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
                     Reset
                   </Button>
                 </div>
@@ -217,7 +277,7 @@ const OutfitAdvisorPage = ({ isDarkMode }) => {
 
             {/* Right column: AI Evaluation (only) */}
             <Col xs={24} md={12}>
-              <Card style={{ background: cardBg, borderRadius: 12 }}>
+              <Card style={{ background: cardBg, borderRadius: 20, boxShadow: isDarkMode ? '0 2px 16px #0006' : '0 2px 16px #0ea5e933' }}>
                 <Title level={4} style={{ marginBottom: 8, color: textColor }}>AI Evaluation</Title>
                 {sending && <div style={{ padding: 16 }}><Spin /> Sending to AI...</div>}
                 {!sending && !response && <Text type="secondary">No evaluation yet. Click "Analyze Outfit" to get suggestions.</Text>}
@@ -251,19 +311,37 @@ const OutfitAdvisorPage = ({ isDarkMode }) => {
 
           {/* Saved Analyses remains full-width at the bottom (unchanged) */}
           <div style={{ marginTop: 20 }}>
-            <Card style={{ background: cardBg, borderRadius: 12 }}>
+            <Card style={{ background: cardBg, borderRadius: 20, padding: 10, border: `1px solid ${borderColor}`, boxShadow: isDarkMode ? '0 2px 16px #0006' : '0 2px 16px #0ea5e933' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Title level={4} style={{ marginBottom: 8, color: textColor }}>Saved Analyses</Title>
-                <Button size="small" onClick={loadSavedResults} disabled={savedLoading}>Refresh</Button>
+                <Button
+                  size="small"
+                  onClick={loadSavedResults}
+                  disabled={savedLoading}
+                  style={{
+                    borderRadius: 999,
+                    minWidth: 96,
+                    height: 36,
+                    border: `1px solid ${borderColor}`,
+                    background: 'transparent',
+                    color: subText,
+                    fontWeight: 700
+                  }}
+                >
+                  Refresh
+                </Button>
               </div>
+
               {savedLoading && <div style={{ padding: 12 }}><Spin /> Loading saved analyses...</div>}
+
               {!savedLoading && savedResults.length === 0 && (
-                <Text type="secondary">No saved analyses yet — results are stored automatically after analysis.</Text>
+                <Text style={{ color: subText }}>No saved analyses yet — results are stored automatically after analysis.</Text>
               )}
+
               {!savedLoading && savedResults.length > 0 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
                   {savedResults.map((r) => (
-                    <Card key={r.id} size="small" style={{ borderRadius: 10, background: isDarkMode ? '#0b1220' : '#f8fafc' }}>
+                    <Card key={r.id} size="small" style={{ borderRadius: 12, background: isDarkMode ? '#0b1220' : '#f8fafc', boxShadow: isDarkMode ? '0 2px 12px #0006' : '0 2px 12px #e6f7ff', border: 'none' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
                         <div style={{ flex: 1 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -271,7 +349,7 @@ const OutfitAdvisorPage = ({ isDarkMode }) => {
                               <Text strong style={{ color: textColor }}>{r.outfit_name || r.description}</Text>
                             )}
                           </div>
-                          <div style={{ marginTop: 8, color: isDarkMode ? '#9ca3af' : '#6b7280' }}>{r.explanation || ''}</div>
+                          <div style={{ marginTop: 8, color: subText }}>{r.explanation || ''}</div>
                           {r.improvement_suggestions && <div style={{ marginTop: 6, fontSize: 13 }}>Suggestions: {r.improvement_suggestions}</div>}
                           {r.better_outfit_idea && <div style={{ marginTop: 6, fontSize: 13 }}>Better idea: {r.better_outfit_idea}</div>}
                         </div>
@@ -279,8 +357,8 @@ const OutfitAdvisorPage = ({ isDarkMode }) => {
                           <div style={{ fontSize: 18, fontWeight: 800, color: '#0ea5e9' }}>{r.suitability_score ?? '—'}</div>
                           <div style={{ marginTop: 6 }}>{r.recommendation ?? '—'}</div>
                           <div style={{ marginTop: 12, display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                            <Button size="small" onClick={async () => { await advisorService.getResult(r.id).then((doc) => { setResponse(doc); window.scrollTo({ top: 0, behavior: 'smooth' }); }).catch(() => {}); }}>Load</Button>
-                            <Button size="small" danger onClick={async () => { try { await advisorService.deleteResult(r.id); toast.success('Deleted'); await loadSavedResults(); } catch (err) { const info = apiUtils.handleError(err); toast.error(info.message); } }}>Delete</Button>
+                            <Button size="small" style={{ borderRadius: 8 }} onClick={async () => { await advisorService.getResult(r.id).then((doc) => { setResponse(doc); window.scrollTo({ top: 0, behavior: 'smooth' }); }).catch(() => {}); }}>Load</Button>
+                            <Button size="small" danger style={{ borderRadius: 8 }} onClick={async () => { try { await advisorService.deleteResult(r.id); toast.success('Deleted'); await loadSavedResults(); } catch (err) { const info = apiUtils.handleError(err); toast.error(info.message); } }}>Delete</Button>
                           </div>
                         </div>
                       </div>
