@@ -1,6 +1,6 @@
 # 🧥🧥 Smart Virtual Wardrobe
 
-A comprehensive AI-powered virtual wardrobe application that combines intelligent clothing classification, virtual try-on capabilities, and personal wardrobe management. Built with FastAPI backend and React frontend, featuring Google Gemini AI for realistic virtual try-ons and Roboflow for automatic clothing classification.
+A comprehensive AI-powered virtual wardrobe application that combines intelligent clothing classification, virtual try-on capabilities, personal wardrobe management, outfit advice, and 3D avatar generation. Built with FastAPI backend and React frontend, featuring Google Gemini AI for realistic virtual try-ons, Roboflow for automatic clothing classification, OpenRouter LLM for outfit advice, and Pollinations AI for image and avatar generation.
 
 **📽️ Project Demo**: [View Smart Virtual Wardrobe Demo](https://jmp.sh/iMeyrOOx)
 
@@ -25,9 +25,14 @@ Paper-ID with title: **1338 - Smart Virtual Wardrobe: AI-Powered Outfit Planner 
 
 ## 🚀 Core Features
 
-- **🤖 AI Virtual Try-On**: Upload person and clothing images to generate photorealistic try-on results using Google Gemini
+- **🤖 AI Virtual Try-On**: Upload person and clothing images to generate photorealistic try-on results via Gradio (Kolors Virtual Try-On)
+- **👤 Profile Management**: Users can update their profile and upload a profile photo stored on Cloudinary
 - **📸 Smart Clothing Classification**: Automatic categorization of clothing items using Roboflow AI
-- **👕 Personal Wardrobe Management**: Digitally organize and manage your clothing collection
+- **👕 Personal Wardrobe Management**: Digitally organize, search, and manage your clothing collection
+- **🧠 LLM Outfit Advisor**: Upload clothing images and get AI-powered outfit suggestions via OpenRouter
+- **🎨 Style Feed**: Browse and save AI-generated style cards powered by Pollinations image generation
+- **🤖 Avatar Generator**: Generate a 3D model/video (MP4 preview + interactive GLB viewer) from a clothing image using the TRELLIS Gradio space
+- **👗 Apparel Catalog**: Browse and filter an apparel product catalog (gender, season, color, article type, etc.)
 - **🔐 Secure Authentication**: JWT-based user authentication system
 - **☁️ Cloud Storage**: Images stored securely on Cloudinary CDN
 - **📱 Responsive Design**: Works seamlessly on desktop and mobile devices
@@ -49,11 +54,11 @@ Below are some screenshots showcasing the **Smart-Virtual-Wardrobe** core featur
 
 ## 🛠️ Tech Stack
 
-- **Frontend:**  React.js, Ant Design, React Router, React Context API, Axios
-- **Backend:**  FastAPI, Python 3.12+, Uvicorn, Pydantic, JWT Authentication
-- **AI Services:**  Google Gemini API,Roboflow Classification, TensorFlow Models, Computer Vision
-- **Cloud Services:**  Cloudinary (Image Storage & CDN), CDN Delivery
-- **Database:**  MongoDB Atlas
+- **Frontend:**  React.js, Ant Design, React Router, React Context API, Axios, Three.js (GLB viewer)
+- **Backend:**  FastAPI, Python 3.12+, Uvicorn, Pydantic, JWT Authentication, Gradio Client
+- **AI Services:**  Gradio / Kolors Virtual Try-On, Roboflow Classification, OpenRouter LLM, Pollinations Image & Avatar Generation, TRELLIS 3D Generation
+- **Cloud Services:**  Cloudinary (Image Storage & CDN)
+- **Database:**  MongoDB Atlas (async via Motor)
 
 ---
 
@@ -64,8 +69,10 @@ Below are some screenshots showcasing the **Smart-Virtual-Wardrobe** core featur
 - Node.js 18+
 - MongoDB Atlas account
 - Cloudinary account
-- Google Gemini API key
 - Roboflow API key
+- OpenRouter API key
+- Pollinations API key (optional)
+- HuggingFace token (optional, for TRELLIS 3D generation)
 
 ### 1. Clone the Repository
 
@@ -91,18 +98,32 @@ poetry shell
 
 # Set up environment variables
 cp .env.example .env
-# Edit .env with your API keys:
+# Edit .env with your API keys
 ```
 
 ### 🔧 Environment Variables
 ```bash
-GEMINI_API_KEY=your_gemini_api_key_here
 ROBOFLOW_API_KEY=your_roboflow_api_key_here
 CLOUDINARY_CLOUD_NAME=your_cloudinary_name
 CLOUDINARY_API_KEY=your_cloudinary_key
 CLOUDINARY_API_SECRET=your_cloudinary_secret
 MONGODB_URI=your_mongodb_atlas_connection_string
-JWT_SECRET_KEY=your_jwt_secret_key
+JWT_SECRET=your_jwt_secret_key
+
+# OpenRouter (LLM Outfit Advisor)
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1   # optional, default shown
+OPENROUTER_MODEL=nvidia/nemotron-nano-12b-v2-vl:free  # optional, default shown
+OPENROUTER_FALLBACK_MODEL=gpt-4o-mini                 # optional, default shown
+
+# Gradio Virtual Try-On space URL (optional, default shown)
+GRADIO_TRYON_URL=https://ai-modelscope-kolors-virtual-try-on.ms.fun/
+
+# Pollinations image/avatar generation (optional)
+POLLINATIONS_API_KEY=your_pollinations_api_key_here
+
+# HuggingFace token for TRELLIS 3D space (optional)
+HF_TOKEN=your_huggingface_token_here
 ```
 
 **Start the backend server:**
@@ -129,31 +150,72 @@ npm run dev    # port: 5173
 
 ## 📦 API Endpoints
 
-### Authentication
+### Authentication & Profile
 ```
-POST   /auth/register           # User registration
-POST   /auth/login              # User login
-GET    /auth/verify             # Verify JWT token
+POST   /register                    # User registration
+POST   /login                       # User login
+GET    /me                          # Get current user info
+GET    /profile                     # Get user profile
+POST   /profile                     # Create user profile
+PUT    /profile                     # Update user profile
+POST   /profile/photo               # Upload profile photo
 ```
 
 ### Virtual Try-On
 ```
-POST   /api/try-on              # Generate virtual try-on
-GET    /api/try-on/sessions     # Get user's try-on history
-GET    /api/try-on/sessions/{id} # Get specific try-on session
-DELETE /api/try-on/sessions/{id} # Delete try-on session
+POST   /api/try-on                        # Generate virtual try-on
+POST   /api/try-on/sessions               # Create try-on session record
+GET    /api/try-on/sessions               # Get user's try-on history
+GET    /api/try-on/sessions/{id}          # Get specific try-on session
+PUT    /api/try-on/sessions/{id}/result   # Update session result
+DELETE /api/try-on/sessions/{id}          # Delete try-on session
 ```
 
 ### Wardrobe Management
 ```
-POST   /api/wardrobe/classify   # Classify clothing image
-POST   /api/wardrobe/items      # Add new wardrobe item
-GET    /api/wardrobe/items      # Get user's wardrobe items
-GET    /api/wardrobe/items/{id} # Get specific item
-PUT    /api/wardrobe/items/{id} # Update item details
-DELETE /api/wardrobe/items/{id} # Delete item
-GET    /api/wardrobe/search     # Search items with filters
-GET    /api/wardrobe/statistics # Get wardrobe statistics
+POST   /api/wardrobe/classify       # Classify clothing image (Roboflow)
+POST   /api/wardrobe/items          # Add new wardrobe item
+GET    /api/wardrobe/items          # Get user's wardrobe items
+GET    /api/wardrobe/items/{id}     # Get specific item
+PUT    /api/wardrobe/items/{id}     # Update item details
+DELETE /api/wardrobe/items/{id}     # Delete item
+GET    /api/wardrobe/search         # Search items with filters
+GET    /api/wardrobe/statistics     # Get wardrobe statistics
+```
+
+### Outfit Advisor
+```
+POST   /api/outfit-advisor/analyze  # Analyze outfit and get AI advice
+POST   /api/outfit-advisor/upload   # Upload image for advisor
+GET    /api/outfit-advisor          # List user's outfit advice history
+GET    /api/outfit-advisor/{id}     # Get specific advice record
+DELETE /api/outfit-advisor/{id}     # Delete advice record
+```
+
+### Favorites & Style Feed
+```
+GET    /api/favorites               # List favorites (optional ?type= filter)
+POST   /api/favorites               # Save a favorite
+DELETE /api/favorites/{id}          # Remove a favorite
+GET    /api/stylefeed               # List style-feed cards (latest first)
+```
+
+### Apparel Catalog
+```
+GET    /api/apparel/filters         # Get available filter options
+GET    /api/apparel/products        # Get filtered apparel products
+```
+
+### Image & Avatar Generation
+```
+GET    /api/image/{prompt}          # Generate image via Pollinations
+POST   /api/avatar                  # Generate 3D-style avatar via Pollinations
+```
+
+### 3D Model Generation
+```
+POST   /generate-3d                 # Generate 3D model + GLB from image (TRELLIS)
+POST   /generate-3d-fast            # Fast 3D model generation
 ```
 
 ---
@@ -163,39 +225,66 @@ GET    /api/wardrobe/statistics # Get wardrobe statistics
 ```
 Smart-Virtual-Wardrobe/
 ├── backend/
-│   ├── main.py                 # FastAPI application entry
-│   ├── database.py            # MongoDB connection
-│   ├── cloudinary_config.py   # Cloudinary configuration
+│   ├── main.py                    # FastAPI application entry point
+│   ├── database.py                # MongoDB connection (Motor async)
+│   ├── cloudinary_config.py       # Cloudinary folder configuration
 │   ├── routers/
-│   │   ├── auth.py           # Authentication endpoints
-│   │   ├── tryon.py          # Virtual try-on endpoints
-│   │   └── wardrobe.py       # Wardrobe management endpoints
+│   │   ├── auth.py                # Authentication & profile endpoints
+│   │   ├── tryon.py               # Virtual try-on endpoints
+│   │   ├── wardrobe.py            # Wardrobe management endpoints
+│   │   ├── outfit_advisor.py      # LLM outfit advice endpoints
+│   │   ├── favorites.py           # Favorites endpoints
+│   │   ├── style_feed.py          # Style feed endpoints
+│   │   ├── apparel.py             # Apparel catalog endpoints
+│   │   ├── image.py               # Image & avatar generation endpoints
+│   │   └── model3d.py             # 3D model generation endpoints
 │   ├── models/
-│   │   ├── schemas.py        # Pydantic models
-│   │   └── database_ops.py   # Database operations
+│   │   ├── schemas.py             # Pydantic models / schemas
+│   │   └── database_ops.py        # Database CRUD operations
 │   ├── utils/
-│   │   └── base64_helpers.py # Image processing utilities
-│   ├── model_training_files/ # ML model training notebooks
-│   ├── requirements.txt      # Python dependencies
-│   └── pyproject.toml        # Poetry configuration
+│   │   ├── base64_helpers.py      # Image encoding utilities
+│   │   └── apparel_only.csv       # Apparel catalog dataset
+│   ├── model_training_books/      # ML model training notebooks
+│   ├── avatars_3D/                # Generated 3D assets (mp4 + glb)
+│   ├── requirements.txt           # Python dependencies
+│   └── pyproject.toml             # Poetry configuration
 ├── frontend/
 │   ├── src/
-│   │   ├── App.jsx           # Main application component
-│   │   ├── context/          # React context providers
-│   │   ├── components/       # Reusable components
-│   │   ├── pages/           # Page components
-│   │   ├── services/        # API service functions
-│   │   └── assets/          # Static assets
-│   ├── public/              # Public assets
-│   ├── package.json         # Node.js dependencies
-│   └── vite.config.js       # Vite configuration
-├── screenshots/             # Application screenshots
-
-├── .env.example            # Environment variables template
-└── README.md               # Project documentation
+│   │   ├── App.jsx                # Main application component & routing
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx    # Authentication context provider
+│   │   ├── components/
+│   │   │   ├── Footer.jsx         # Footer component
+│   │   │   ├── GLBViewer.jsx      # Interactive 3D GLB viewer (Three.js)
+│   │   │   ├── ImageUpload.jsx    # Image upload component
+│   │   │   └── Logout.jsx         # Logout button component
+│   │   ├── pages/
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── TryOnPage.jsx
+│   │   │   ├── WardrobePage.jsx
+│   │   │   ├── FavoritesPage.jsx
+│   │   │   ├── HistoryPage.jsx
+│   │   │   ├── ProfilePage.jsx
+│   │   │   ├── OutfitAdvisorPage.jsx
+│   │   │   ├── StyleFeed.jsx
+│   │   │   ├── AvatarGeneratorPage.jsx
+│   │   │   ├── HelpPage.jsx
+│   │   │   ├── LoginPage.jsx
+│   │   │   └── RegisterPage.jsx
+│   │   ├── services/
+│   │   │   └── api.js             # Axios API service functions
+│   │   └── assets/
+│   │       └── ClothHangerIcon.jsx
+│   ├── public/                    # Public static files
+│   ├── package.json               # Node.js dependencies
+│   └── vite.config.js             # Vite configuration
+├── screenshots/                   # Application screenshots
+├── reports/                       # IEEE paper, certificate, project report
+└── README.md                      # Project documentation
 ```
 
 For detailed documentation on each component, see:
+- [Backend README](./backend/README.md)
 - [Frontend README](./frontend/README.md)
 - [Backend README](./backend/README.md)
 
@@ -271,8 +360,7 @@ We welcome contributions! Please follow these steps:
 ## 🗺️ Roadmap
 
 - [✔️] **Phase 1**: Virtual try-on and Wardrobe Clothing Classification
-- [ ] **Phase 2**: Outfit recommendation and Weather-based outfit suggestions
-- [ ] **Phase 3**: Frontend and Backend Cloud Service Deployemnt
+- [✔️] **Phase 2**: Outfit recommendation and Weather-based outfit suggestions
 
 ---
 

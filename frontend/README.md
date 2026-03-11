@@ -1,30 +1,35 @@
 # Smart Virtual Wardrobe - Frontend
 
-This is the frontend application for the Smart Virtual Wardrobe project, built with React, Vite, and Ant Design. It provides a responsive user interface for managing your virtual wardrobe, performing AI-powered virtual try-ons, and browsing outfit recommendations.
+This is the frontend application for the Smart Virtual Wardrobe project, built with React, Vite, and Ant Design. It provides a responsive user interface for managing your virtual wardrobe, performing AI-powered virtual try-ons, browsing outfit recommendations, and generating 3D avatars.
 
 ---
 
 ## 🚀 Features
 
-- Responsive React application with Ant Design UI components
-- User authentication and profile management
-- Wardrobe management: add, update, delete clothing items
-- Virtual try-on interface with image upload and AI integration
-- Favorites, history, and search functionality
+- Responsive React application with Ant Design UI components and Tailwind CSS
+- User authentication (register/login) and profile management with photo upload
+- Wardrobe management: add, classify, update, and delete clothing items
+- Virtual try-on interface with image upload and AI integration (Gradio/Kolors)
+- LLM-powered Outfit Advisor: upload a clothing image and receive AI style suggestions
+- Style Feed: browse and save AI-generated style cards (Pollinations)
+- Avatar Generator: generate a 3D model/video from a clothing image (MP4 preview + interactive GLB viewer powered by Three.js)
+- Favorites management and try-on history
 - Dark/light mode toggle for comfortable viewing
-- Mobile-friendly design
+- Mobile-friendly, sticky navigation with drawer menu
 
 ---
 
 ## 🛠️ Tech Stack
 
-- React.js
+- React 18
 - Vite
-- Ant Design
-- React Router
-- React Context API
+- Ant Design 5
+- Tailwind CSS
+- React Router DOM v7
+- React Context API (authentication state)
 - Axios for API calls
 - React Toastify for notifications
+- Three.js for interactive GLB 3D model viewing
 
 ---
 
@@ -33,12 +38,12 @@ This is the frontend application for the Smart Virtual Wardrobe project, built w
 ### Prerequisites
 
 - Node.js 18+
-- Access to backend API (running locally or deployed)
+- Backend API running locally (`http://localhost:8000`) or deployed
 
 ### Installation
 
 ```bash
-git clone https://github.com/yourusername/Smart-Virtual-Wardrobe.git
+git clone https://github.com/Preveen369/Smart-Virtual-Wardrobe.git
 cd Smart-Virtual-Wardrobe/frontend
 npm install
 ```
@@ -68,17 +73,38 @@ npm test
 ```
 frontend/
 ├── src/
-│   ├── App.jsx               # Main application component
-│   ├── components/           # Reusable UI components
-│   ├── context/              # React context providers
-│   ├── pages/                # Page components
-│   ├── services/             # API service functions
-│   ├── assets/               # Static assets like images and icons
-│   └── index.css             # Global styles
-├── public/                   # Public static files
-├── package.json              # Node.js dependencies and scripts
-├── vite.config.js            # Vite configuration
-└── README.md                 # Frontend documentation
+│   ├── App.jsx                    # Main application component, routing & navigation
+│   ├── index.css                  # Global styles
+│   ├── context/
+│   │   └── AuthContext.jsx        # JWT authentication context provider
+│   ├── components/
+│   │   ├── Footer.jsx             # Footer component
+│   │   ├── GLBViewer.jsx          # Interactive 3D GLB viewer (Three.js)
+│   │   ├── ImageUpload.jsx        # Reusable image upload component
+│   │   └── Logout.jsx             # Logout button component
+│   ├── pages/
+│   │   ├── HomePage.jsx           # Landing / home page
+│   │   ├── TryOnPage.jsx          # AI virtual try-on page
+│   │   ├── WardrobePage.jsx       # Wardrobe management page
+│   │   ├── FavoritesPage.jsx      # Saved favorites page
+│   │   ├── HistoryPage.jsx        # Try-on history page
+│   │   ├── ProfilePage.jsx        # User profile & photo upload
+│   │   ├── OutfitAdvisorPage.jsx  # LLM outfit advice page
+│   │   ├── StyleFeed.jsx          # AI-generated style feed page
+│   │   ├── AvatarGeneratorPage.jsx# 3D avatar/model generator page
+│   │   ├── HelpPage.jsx           # Help & FAQ page
+│   │   ├── LoginPage.jsx          # Login page
+│   │   └── RegisterPage.jsx       # Registration page
+│   ├── services/
+│   │   └── api.js                 # Axios API service functions
+│   └── assets/
+│       └── ClothHangerIcon.jsx    # Custom SVG logo icon
+├── public/                        # Public static files
+├── index.html                     # HTML entry point
+├── package.json                   # Node.js dependencies and scripts
+├── vite.config.js                 # Vite configuration
+├── tailwind.config.js             # Tailwind CSS configuration
+└── postcss.config.js              # PostCSS configuration
 ```
 
 ---
