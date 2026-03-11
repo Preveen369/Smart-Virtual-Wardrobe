@@ -2,6 +2,8 @@
 
 This is the frontend application for the Smart Virtual Wardrobe project, built with React, Vite, and Ant Design. It provides a responsive user interface for managing your virtual wardrobe, performing AI-powered virtual try-ons, browsing outfit recommendations, and generating 3D avatars.
 
+🔗 **Related Documentation**: [Main Project README](../README.md) | [Backend README](../backend/README.md)
+
 ---
 
 ## 🚀 Features

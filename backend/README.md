@@ -2,6 +2,8 @@
 
 This is the backend API server for the Smart Virtual Wardrobe project, built with FastAPI and Python. It provides RESTful endpoints for user authentication, wardrobe management, AI-powered virtual try-on, clothing classification, outfit advice, style feed, apparel catalog, and 3D avatar/model generation.
 
+🔗 **Related Documentation**: [Main Project README](../README.md) | [Frontend README](../frontend/README.md)
+
 ---
 
 ## 🚀 Features
@@ -11,7 +13,7 @@ This is the backend API server for the Smart Virtual Wardrobe project, built wit
 - Wardrobe item CRUD operations with image upload and Roboflow clothing classification
 - Virtual try-on image generation via Gradio (Kolors Virtual Try-On space), results saved to Cloudinary
 - LLM-powered outfit advisor using OpenRouter API with image upload support
-- Style feed backed by the user's saved favorites and an apparel catalog browsing/filtering feature powered by a local CSV dataset
+- Browse/explore and save AI-generated style cards by filtering through an apparel product catalog powered by a local CSV dataset
 - Pollinations-powered image generation and 3D-style avatar generation
 - 3D model/video generation (MP4 preview + GLB file) using the TRELLIS Gradio space; results served from `/avatars_3D`
 - MongoDB integration (async via Motor) for data storage
@@ -113,7 +115,7 @@ Interactive docs are available at `http://localhost:8000/docs`.
 
 ## 📦 API Endpoints
 
-### Authentication & Profile
+### Authentication & Profile Enpoints
 ```
 POST   /register                    # User registration
 POST   /login                       # User login
@@ -124,13 +126,13 @@ PUT    /profile                     # Update user profile
 POST   /profile/photo               # Upload profile photo (Cloudinary)
 ```
 
-### Virtual Try-On
+### Virtual Try-On Endpoints
 ```
 POST   /api/try-on                        # Generate virtual try-on (Gradio/Kolors)
 GET    /api/try-on/sessions               # Get user's try-on history
 ```
 
-### Wardrobe Management
+### Wardrobe Management Endpoints
 ```
 POST   /api/wardrobe/classify       # Classify clothing image (Roboflow)
 POST   /api/wardrobe/items          # Add new wardrobe item
@@ -139,7 +141,7 @@ GET    /api/wardrobe/items/{id}     # Get specific item
 DELETE /api/wardrobe/items/{id}     # Delete item
 ```
 
-### Outfit Advisor
+### Outfit Advisor Endpoints
 ```
 POST   /api/outfit-advisor/analyze  # Analyze outfit and get AI-powered advice
 POST   /api/outfit-advisor/upload   # Upload clothing image for advisor context
@@ -156,21 +158,13 @@ DELETE /api/favorites/{id}          # Remove a favorite
 GET    /api/stylefeed               # List style-feed cards for the user (latest first)
 GET    /api/apparel/filters         # Get available filter options (gender, season, color, …)
 GET    /api/apparel/products        # Get filtered apparel products (up to 5 results)
-```
-
-### Image & Avatar Generation
-```
 GET    /api/image/{prompt}          # Generate image via Pollinations (query: ?model=)
+```
+
+### Avatar, 3D Model Generation, Static Assets
+```
 POST   /api/avatar                  # Generate 3D-style avatar via Pollinations (klein model)
-```
-
-### 3D Model Generation
-```
 POST   /generate-3d                 # Generate 3D model + GLB from image (TRELLIS Gradio space)
-```
-
-### Static Assets
-```
 GET    /avatars_3D/{filename}       # Serve generated MP4 previews and GLB files
 ```
 

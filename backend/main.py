@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from routers import tryon, wardrobe, auth, image, apparel, favorites, style_feed, avatar, model3d
+from routers import tryon, wardrobe, auth, apparel, favorites, style_feed, avatar, model3d
 from database import connect_to_mongo, close_mongo_connection
 import cloudinary_config
 
@@ -47,9 +47,7 @@ app.include_router(model3d.router)
 # serve generated 3D assets (mp4 + glb) under /avatars_3D
 app.mount("/avatars_3D", StaticFiles(directory="avatars_3D"), name="avatars_3D")
 
-# Image generation proxy used by the frontend Style Feed (`GET /api/image/{prompt}`)
-from routers import image
-app.include_router(image.router, prefix="/api")
+# Avatar and related routers (image generation moved into style_feed router)
 app.include_router(avatar.router, prefix="/api")
 
 @app.get("/")
