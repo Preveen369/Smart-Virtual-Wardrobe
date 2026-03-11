@@ -140,27 +140,3 @@ async def generate_3d(
     }
 
 
-@router.post("/generate-3d-fast")
-async def generate_3d_fast(file: UploadFile = File(...)):
-    # store temporary upload inside the avatars directory
-    image_path = os.path.join(OUTPUT_DIR, f"temp_{file.filename}")
-    with open(image_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-
-    try:
-        client.predict(api_name="/start_session")
-        result = client.predict(
-            images=[{"image": handle_file(image_path)}],
-            api_name="/generate_model_from_images_and_upload"
-        )
-    except Exception as exc:
-        from fastapi import HTTPException
-        raise HTTPException(status_code=500, detail=f"fast generation failed: {exc}")
-
-    # clean up upload file
-    try:
-        os.remove(image_path)
-    except OSError:
-        pass
-
-    return result

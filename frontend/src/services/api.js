@@ -114,15 +114,6 @@ export const threeDService = {
     return threeDService.generate(file, false);
   },
 
-  // simplified fast endpoint that returns whatever the HF service returns
-  generateFast: async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    const response = await api.post('/generate-3d-fast', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return response.data;
-  },
 };
 
 // Wardrobe Services

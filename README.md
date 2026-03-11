@@ -215,7 +215,6 @@ POST   /api/avatar                  # Generate 3D-style avatar via Pollinations
 ### 3D Model Generation
 ```
 POST   /generate-3d                 # Generate 3D model + GLB from image (TRELLIS)
-POST   /generate-3d-fast            # Fast 3D model generation
 ```
 
 ---
