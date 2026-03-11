@@ -1,6 +1,18 @@
 # 🧥🧥 Smart Virtual Wardrobe
 
+![Platform](https://img.shields.io/badge/Platform-Web-blue.svg)
+![Frontend](https://img.shields.io/badge/Frontend-React-orange.svg)
+![Backend](https://img.shields.io/badge/Backend-FastAPI-red.svg)
+![Database](https://img.shields.io/badge/Database-MongoDB-emerald.svg)
+![Language](https://img.shields.io/badge/Language-Python-yellow.svg)
+![LLM_Model](https://img.shields.io/badge/LLM_Model-OpenRouter-aqua.svg)
+![ML_Models](https://img.shields.io/badge/ML_Models-HF_Inference-pink.svg)
+![3DModel](https://img.shields.io/badge/3D_Model-Threejs-purple.svg)
+![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)
+
 A comprehensive AI-powered virtual wardrobe application that combines intelligent clothing classification, virtual try-on capabilities, personal wardrobe management, outfit advice, and 3D avatar generation. Built with a FastAPI backend and React frontend, featuring Google Gemini AI for realistic virtual try-ons, Roboflow for automatic clothing classification, OpenRouter LLM for outfit advice, and Pollinations AI for image and avatar generation.
+
+🔗 **Related Documentations**: [Frontend README](./frontend/README.md) | [Backend README](./backend/README.md) 
 
 **📽️ Project Demo**: [View Smart Virtual Wardrobe Demo](https://jmp.sh/iMeyrOOx)
 
@@ -30,7 +42,7 @@ Paper-ID with title: **1338 - Smart Virtual Wardrobe: AI-Powered Outfit Planner 
 - **📸 Smart Clothing Classification**: Automatic categorization of clothing items using Roboflow AI
 - **👕 Personal Wardrobe Management**: Digitally organize, search, and manage your clothing collection
 - **🧠 LLM Outfit Advisor**: Upload clothing images and get AI-powered outfit suggestions via OpenRouter
-- **🎨 Style Feed & 👗 Apparel Catalog**: Browse and save AI-generated style cards powered by Pollinations image generation, and explore/filter an apparel product catalog (gender, season, color, article type, etc.)
+- **🎨 Style Feed & Apparel Catalog**: Browse/explore and save AI-generated style cards by filtering through an apparel product catalog (gender, season, color, article type, etc.)
 - **🤖 Avatar Generator**: Generate a 3D model/video (MP4 preview + interactive GLB viewer) from a clothing image using the TRELLIS Gradio space
 - **🔐 Secure Authentication**: JWT-based user authentication system
 - **☁️ Cloud Storage**: Images stored securely on Cloudinary CDN
@@ -196,7 +208,7 @@ GET    /api/apparel/products        # Get filtered apparel products
 
 ### Image & Avatar Generation
 
-The two paths are implemented in different backend router modules (`routers/image.py` and `routers/avatar.py`).
+The image-generation endpoint now lives under the `style_feed` router (see `routers/style_feed.py`), while avatars remain in `routers/avatar.py`.
 
 ```
 GET    /api/image/{prompt}          # Generate image via Pollinations
@@ -220,13 +232,13 @@ Smart-Virtual-Wardrobe/
 │   ├── cloudinary_config.py       # Cloudinary folder configuration
 │   ├── routers/
 │   │   ├── auth.py                # Authentication & profile endpoints
+│   │   ├── avatar.py                # Avatar generation endpoints 
 │   │   ├── tryon.py               # Virtual try-on endpoints
 │   │   ├── wardrobe.py            # Wardrobe management endpoints
 │   │   ├── outfit_advisor.py      # LLM outfit advice endpoints
 │   │   ├── favorites.py           # Favorites endpoints
-│   │   ├── style_feed.py          # Style feed endpoints
+│   │   ├── style_feed.py          # Style feed & image generation endpoints
 │   │   ├── apparel.py             # Apparel catalog endpoints
-│   │   ├── image.py               # Image & avatar generation endpoints
 │   │   └── model3d.py             # 3D model generation endpoints
 │   ├── models/
 │   │   ├── schemas.py             # Pydantic models / schemas
@@ -361,8 +373,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙋‍♂️ Team & Contributors
 
-**Lead Developer**: Preveen S  
-**Contributor**: Johnson J
+**Lead Developer**: [Preveen S](https://linkedin.com/in/preveen-s/)
+**Contributor**: [Johnson J](https://www.linkedin.com/in/johnsonj04/)
 
 ---
 
@@ -380,7 +392,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📧 Contact
 For queries or suggestions:
 - 📩 Email: spreveen123@gmail.com
-- 🌐 LinkedIn: https://linkedin.com/in/preveen-s
+- 🌐 LinkedIn: https://linkedin.com/in/preveen-s/
 
 ---
 
