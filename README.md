@@ -10,7 +10,7 @@
 ![3DModel](https://img.shields.io/badge/3D_Model-Threejs-purple.svg)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)
 
-A comprehensive AI-powered virtual wardrobe application that combines intelligent clothing classification, virtual try-on capabilities, personal wardrobe management, outfit advice, and 3D avatar generation. Built with a FastAPI backend and React frontend, featuring Google Gemini AI for realistic virtual try-ons, Roboflow for automatic clothing classification, OpenRouter LLM for outfit advice, and Pollinations AI for image and avatar generation.
+A comprehensive AI-powered virtual wardrobe application that combines intelligent clothing classification, virtual try-on capabilities, personal wardrobe management, outfit advice, and 3D model, avatar generation. Built with a FastAPI backend and React frontend, featuring Gradio Space AI for realistic virtual try-ons, Roboflow for automatic clothing classification, OpenRouter LLM for outfit advice, and Pollinations AI for image and avatar generation, Trellis Gradio Space for 3D model generation.
 
 🔗 **Related Documentations**: [Frontend README](./frontend/README.md) | [Backend README](./backend/README.md) 
 
