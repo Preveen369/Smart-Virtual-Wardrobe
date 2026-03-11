@@ -130,6 +130,9 @@ OPENROUTER_FALLBACK_MODEL=gpt-4o-mini                 # optional, default shown
 # Gradio Virtual Try-On space URL (optional, default shown)
 GRADIO_TRYON_URL=https://ai-modelscope-kolors-virtual-try-on.ms.fun/
 
+# TRELLIS multiple3D space URL (optional, default shown)
+GRADIO_TRELLIS_URL=https://trellis-multiple3d.ms.fun/
+
 # Pollinations image/avatar generation (optional)
 POLLINATIONS_API_KEY=your_pollinations_api_key_here
 
