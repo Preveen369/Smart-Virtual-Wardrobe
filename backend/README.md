@@ -11,7 +11,7 @@ This is the backend API server for the Smart Virtual Wardrobe project, built wit
 - FastAPI-based REST API with JWT authentication
 - User registration, login, profile management, and profile photo upload (stored on Cloudinary)
 - Wardrobe item CRUD operations with image upload and Roboflow clothing classification
-- Virtual try-on image generation via Gradio (Kolors Virtual Try-On space), results saved to Cloudinary
+- Virtual try-on image generation via Gradio Virtual Try-On space, results saved to Cloudinary
 - LLM-powered outfit advisor using OpenRouter API with image upload support
 - Browse/explore and save AI-generated style cards by filtering through an apparel product catalog powered by a local CSV dataset
 - Pollinations-powered image generation and 3D-style avatar generation

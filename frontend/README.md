@@ -11,7 +11,7 @@ This is the frontend application for the Smart Virtual Wardrobe project, built w
 - Responsive React application with Ant Design UI components and Tailwind CSS
 - User authentication (register/login) and profile management with photo upload
 - Wardrobe management: add, classify, update, and delete clothing items
-- Virtual try-on interface with image upload and AI integration (Gradio/Kolors)
+- Virtual try-on interface with image upload and AI integration (Gradio Space)
 - LLM-powered Outfit Advisor: upload a clothing image and receive AI style suggestions
 - Style Feed: browse and save AI-generated style cards (Pollinations)
 - Avatar Generator: generate a 3D model/video from a clothing image (MP4 preview + interactive GLB viewer powered by Three.js)

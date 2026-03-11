@@ -37,7 +37,7 @@ Paper-ID with title: **1338 - Smart Virtual Wardrobe: AI-Powered Outfit Planner 
 
 ## 🚀 Core Features
 
-- **🤖 AI Virtual Try-On**: Upload person and clothing images to generate photorealistic try-on results via Gradio (Kolors Virtual Try-On)
+- **🤖 AI Virtual Try-On**: Upload person and clothing images to generate photorealistic try-on results using the Gradio Virtual Try-On Space
 - **👤 Profile Management**: Users can update their profile and upload a profile photo stored on Cloudinary
 - **📸 Smart Clothing Classification**: Automatic categorization of clothing items using Roboflow AI
 - **👕 Personal Wardrobe Management**: Digitally organize, search, and manage your clothing collection
