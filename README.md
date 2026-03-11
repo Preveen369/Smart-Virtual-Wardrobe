@@ -6,7 +6,7 @@
 ![Database](https://img.shields.io/badge/Database-MongoDB-emerald.svg)
 ![Language](https://img.shields.io/badge/Language-Python-yellow.svg)
 ![LLM_Model](https://img.shields.io/badge/LLM_Model-OpenRouter-aqua.svg)
-![ML_Models](https://img.shields.io/badge/ML_Models-HF_Inference-pink.svg)
+![ML_Models](https://img.shields.io/badge/ML_Models-HF_Inference,_Roboflow-pink.svg)
 ![3DModel](https://img.shields.io/badge/3D_Model-Threejs-purple.svg)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey.svg)
 
