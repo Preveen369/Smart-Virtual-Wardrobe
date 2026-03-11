@@ -6,28 +6,6 @@ A comprehensive AI-powered virtual wardrobe application that combines intelligen
 
 ---
 
-## 📑 Table of Contents
-
-1. [Conference Publication & Certification](#-conference-publication--certification)
-2. [Core Features](#-core-features)
-3. [Screenshots](#-screenshots)
-4. [Tech Stack](#-tech-stack)
-5. [Setup Instructions](#-setup-instructions)
-6. [API Endpoints](#-api-endpoints)
-7. [Project Structure](#-project-structure)
-8. [Testing](#-testing)
-9. [Deployment](#-deployment)
-10. [Security Features](#-security-features)
-11. [Contributing](#-contributing)
-12. [Roadmap](#-roadmap)
-13. [License](#-license)
-14. [Team & Contributors](#-team--contributors)
-15. [Acknowledgments](#-acknowledgments)
-16. [Contact](#-contact)
-17. [Show Your Support](#-show-your-support)
-
----
-
 # 🏆 Conference Publication & Certification
 
 We proudly presented this research work at, "**2025 IEEE 7th International Conference on Computing, Communication and Automation 

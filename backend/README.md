@@ -4,17 +4,6 @@ This is the backend API server for the Smart Virtual Wardrobe project, built wit
 
 ---
 
-## 📑 Table of Contents
-
-1. [Features](#-features)
-2. [Tech Stack](#-tech-stack)
-3. [Setup Instructions](#-setup-instructions)
-4. [API Endpoints](#-api-endpoints)
-5. [Testing](#-testing)
-6. [Contributing](#-contributing)
-
----
-
 ## 🚀 Features
 
 - FastAPI-based REST API with JWT authentication
@@ -102,6 +91,9 @@ OPENROUTER_FALLBACK_MODEL=gpt-4o-mini                 # optional, default shown
 # Gradio Virtual Try-On space URL (optional, default shown)
 GRADIO_TRYON_URL=https://ai-modelscope-kolors-virtual-try-on.ms.fun/
 
+# TRELLIS multiple3D space URL (optional, default shown)
+GRADIO_TRELLIS_URL=https://trellis-multiple3d.ms.fun/
+
 # Pollinations image/avatar generation (optional)
 POLLINATIONS_API_KEY=your_pollinations_api_key_here
 
@@ -165,8 +157,6 @@ DELETE /api/favorites/{id}          # Remove a favorite
 GET    /api/stylefeed               # List style-feed cards for the user (latest first)
 ```
 
-> The `/api/stylefeed` collection stays in sync with `favorites` of type `stylefeed`. The frontend uses this endpoint exclusively when rendering the Style Feed page.
-
 ### Apparel Catalog
 ```
 GET    /api/apparel/filters         # Get available filter options (gender, season, color, …)
@@ -174,9 +164,6 @@ GET    /api/apparel/products        # Get filtered apparel products (up to 5 res
 ```
 
 ### Image & Avatar Generation
-
-These endpoints live in two separate router modules (`routers/image.py` and `routers/avatar.py`).
-
 ```
 GET    /api/image/{prompt}          # Generate image via Pollinations (query: ?model=)
 POST   /api/avatar                  # Generate 3D-style avatar via Pollinations (klein model)
