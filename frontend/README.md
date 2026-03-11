@@ -4,7 +4,18 @@ This is the frontend application for the Smart Virtual Wardrobe project, built w
 
 ---
 
-## 🚀 Features
+## � Table of Contents
+
+1. [Features](#-features)
+2. [Tech Stack](#-tech-stack)
+3. [Setup Instructions](#-setup-instructions)
+4. [Testing](#-testing)
+5. [Project Structure](#-project-structure)
+6. [Contributing](#-contributing)
+
+---
+
+## �🚀 Features
 
 - Responsive React application with Ant Design UI components and Tailwind CSS
 - User authentication (register/login) and profile management with photo upload
@@ -56,6 +67,12 @@ npm run dev
 
 The app will be available at `http://localhost:5173`.
 
+### Production Build
+
+```bash
+npm run build
+# serve with a static file server, or deploy to Vercel/Netlify/etc.
+```
 ---
 
 ## 🧪 Testing

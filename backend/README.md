@@ -4,7 +4,18 @@ This is the backend API server for the Smart Virtual Wardrobe project, built wit
 
 ---
 
-## 🚀 Features
+## � Table of Contents
+
+1. [Features](#-features)
+2. [Tech Stack](#-tech-stack)
+3. [Setup Instructions](#-setup-instructions)
+4. [API Endpoints](#-api-endpoints)
+5. [Testing](#-testing)
+6. [Contributing](#-contributing)
+
+---
+
+## �🚀 Features
 
 - FastAPI-based REST API with JWT authentication
 - User registration, login, profile management, and profile photo upload (stored on Cloudinary)
@@ -61,7 +72,14 @@ pip install -r requirements.txt
 
 ### Environment Variables
 
-Create a `.env` file in the `backend/` directory with the following variables:
+A `.env` file is included in the repository; copy it and fill in your own keys:
+
+```bash
+cp .env            # Windows PowerShell: copy .env.example .env
+# then edit .env with your API keys / settings
+```
+
+At minimum you should set the following variables:
 
 ```bash
 ROBOFLOW_API_KEY=your_roboflow_api_key_here
@@ -70,7 +88,11 @@ CLOUDINARY_API_KEY=your_cloudinary_key
 CLOUDINARY_API_SECRET=your_cloudinary_secret
 MONGODB_URI=your_mongodb_atlas_connection_string
 JWT_SECRET=your_jwt_secret_key
+```
 
+Additional optional configuration:
+
+```bash
 # OpenRouter (LLM Outfit Advisor)
 OPENROUTER_API_KEY=your_openrouter_api_key
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1   # optional, default shown
@@ -114,11 +136,7 @@ POST   /profile/photo               # Upload profile photo (Cloudinary)
 ### Virtual Try-On
 ```
 POST   /api/try-on                        # Generate virtual try-on (Gradio/Kolors)
-POST   /api/try-on/sessions               # Create try-on session record
 GET    /api/try-on/sessions               # Get user's try-on history
-GET    /api/try-on/sessions/{id}          # Get specific try-on session
-PUT    /api/try-on/sessions/{id}/result   # Update session result
-DELETE /api/try-on/sessions/{id}          # Delete try-on session
 ```
 
 ### Wardrobe Management
@@ -127,10 +145,7 @@ POST   /api/wardrobe/classify       # Classify clothing image (Roboflow)
 POST   /api/wardrobe/items          # Add new wardrobe item
 GET    /api/wardrobe/items          # Get user's wardrobe items
 GET    /api/wardrobe/items/{id}     # Get specific item
-PUT    /api/wardrobe/items/{id}     # Update item details
 DELETE /api/wardrobe/items/{id}     # Delete item
-GET    /api/wardrobe/search         # Search items with filters
-GET    /api/wardrobe/statistics     # Get wardrobe statistics
 ```
 
 ### Outfit Advisor
@@ -159,6 +174,9 @@ GET    /api/apparel/products        # Get filtered apparel products (up to 5 res
 ```
 
 ### Image & Avatar Generation
+
+These endpoints live in two separate router modules (`routers/image.py` and `routers/avatar.py`).
+
 ```
 GET    /api/image/{prompt}          # Generate image via Pollinations (query: ?model=)
 POST   /api/avatar                  # Generate 3D-style avatar via Pollinations (klein model)

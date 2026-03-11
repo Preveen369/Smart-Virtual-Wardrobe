@@ -1,8 +1,30 @@
 # 🧥🧥 Smart Virtual Wardrobe
 
-A comprehensive AI-powered virtual wardrobe application that combines intelligent clothing classification, virtual try-on capabilities, personal wardrobe management, outfit advice, and 3D avatar generation. Built with FastAPI backend and React frontend, featuring Google Gemini AI for realistic virtual try-ons, Roboflow for automatic clothing classification, OpenRouter LLM for outfit advice, and Pollinations AI for image and avatar generation.
+A comprehensive AI-powered virtual wardrobe application that combines intelligent clothing classification, virtual try-on capabilities, personal wardrobe management, outfit advice, and 3D avatar generation. Built with a FastAPI backend and React frontend, featuring Google Gemini AI for realistic virtual try-ons, Roboflow for automatic clothing classification, OpenRouter LLM for outfit advice, and Pollinations AI for image and avatar generation.
 
 **📽️ Project Demo**: [View Smart Virtual Wardrobe Demo](https://jmp.sh/iMeyrOOx)
+
+---
+
+## 📑 Table of Contents
+
+1. [Conference Publication & Certification](#-conference-publication--certification)
+2. [Core Features](#-core-features)
+3. [Screenshots](#-screenshots)
+4. [Tech Stack](#-tech-stack)
+5. [Setup Instructions](#-setup-instructions)
+6. [API Endpoints](#-api-endpoints)
+7. [Project Structure](#-project-structure)
+8. [Testing](#-testing)
+9. [Deployment](#-deployment)
+10. [Security Features](#-security-features)
+11. [Contributing](#-contributing)
+12. [Roadmap](#-roadmap)
+13. [License](#-license)
+14. [Team & Contributors](#-team--contributors)
+15. [Acknowledgments](#-acknowledgments)
+16. [Contact](#-contact)
+17. [Show Your Support](#-show-your-support)
 
 ---
 
@@ -164,11 +186,7 @@ POST   /profile/photo               # Upload profile photo
 ### Virtual Try-On
 ```
 POST   /api/try-on                        # Generate virtual try-on
-POST   /api/try-on/sessions               # Create try-on session record
 GET    /api/try-on/sessions               # Get user's try-on history
-GET    /api/try-on/sessions/{id}          # Get specific try-on session
-PUT    /api/try-on/sessions/{id}/result   # Update session result
-DELETE /api/try-on/sessions/{id}          # Delete try-on session
 ```
 
 ### Wardrobe Management
@@ -177,10 +195,7 @@ POST   /api/wardrobe/classify       # Classify clothing image (Roboflow)
 POST   /api/wardrobe/items          # Add new wardrobe item
 GET    /api/wardrobe/items          # Get user's wardrobe items
 GET    /api/wardrobe/items/{id}     # Get specific item
-PUT    /api/wardrobe/items/{id}     # Update item details
 DELETE /api/wardrobe/items/{id}     # Delete item
-GET    /api/wardrobe/search         # Search items with filters
-GET    /api/wardrobe/statistics     # Get wardrobe statistics
 ```
 
 ### Outfit Advisor
@@ -207,6 +222,9 @@ GET    /api/apparel/products        # Get filtered apparel products
 ```
 
 ### Image & Avatar Generation
+
+The two paths are implemented in different backend router modules (`routers/image.py` and `routers/avatar.py`).
+
 ```
 GET    /api/image/{prompt}          # Generate image via Pollinations
 POST   /api/avatar                  # Generate 3D-style avatar via Pollinations
@@ -282,10 +300,9 @@ Smart-Virtual-Wardrobe/
 └── README.md                      # Project documentation
 ```
 
-For detailed documentation on each component, see:
+For detailed documentation on each major component, see the dedicated READMEs:
 - [Backend README](./backend/README.md)
 - [Frontend README](./frontend/README.md)
-- [Backend README](./backend/README.md)
 
 
 ---
