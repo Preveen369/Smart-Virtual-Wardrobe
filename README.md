@@ -30,9 +30,8 @@ Paper-ID with title: **1338 - Smart Virtual Wardrobe: AI-Powered Outfit Planner 
 - **📸 Smart Clothing Classification**: Automatic categorization of clothing items using Roboflow AI
 - **👕 Personal Wardrobe Management**: Digitally organize, search, and manage your clothing collection
 - **🧠 LLM Outfit Advisor**: Upload clothing images and get AI-powered outfit suggestions via OpenRouter
-- **🎨 Style Feed**: Browse and save AI-generated style cards powered by Pollinations image generation
+- **🎨 Style Feed & 👗 Apparel Catalog**: Browse and save AI-generated style cards powered by Pollinations image generation, and explore/filter an apparel product catalog (gender, season, color, article type, etc.)
 - **🤖 Avatar Generator**: Generate a 3D model/video (MP4 preview + interactive GLB viewer) from a clothing image using the TRELLIS Gradio space
-- **👗 Apparel Catalog**: Browse and filter an apparel product catalog (gender, season, color, article type, etc.)
 - **🔐 Secure Authentication**: JWT-based user authentication system
 - **☁️ Cloud Storage**: Images stored securely on Cloudinary CDN
 - **📱 Responsive Design**: Works seamlessly on desktop and mobile devices
@@ -185,16 +184,12 @@ GET    /api/outfit-advisor/{id}     # Get specific advice record
 DELETE /api/outfit-advisor/{id}     # Delete advice record
 ```
 
-### Favorites & Style Feed
+### Favorites, Style Feed & Apparel
 ```
 GET    /api/favorites               # List favorites (optional ?type= filter)
 POST   /api/favorites               # Save a favorite
 DELETE /api/favorites/{id}          # Remove a favorite
 GET    /api/stylefeed               # List style-feed cards (latest first)
-```
-
-### Apparel Catalog
-```
 GET    /api/apparel/filters         # Get available filter options
 GET    /api/apparel/products        # Get filtered apparel products
 ```

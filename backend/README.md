@@ -11,8 +11,7 @@ This is the backend API server for the Smart Virtual Wardrobe project, built wit
 - Wardrobe item CRUD operations with image upload and Roboflow clothing classification
 - Virtual try-on image generation via Gradio (Kolors Virtual Try-On space), results saved to Cloudinary
 - LLM-powered outfit advisor using OpenRouter API with image upload support
-- Style feed backed by the user's saved favorites
-- Apparel catalog browsing and filtering from a local CSV dataset
+- Style feed backed by the user's saved favorites and an apparel catalog browsing/filtering feature powered by a local CSV dataset
 - Pollinations-powered image generation and 3D-style avatar generation
 - 3D model/video generation (MP4 preview + GLB file) using the TRELLIS Gradio space; results served from `/avatars_3D`
 - MongoDB integration (async via Motor) for data storage
@@ -149,16 +148,12 @@ GET    /api/outfit-advisor/{id}     # Get specific advice record
 DELETE /api/outfit-advisor/{id}     # Delete advice record
 ```
 
-### Favorites & Style Feed
+### Favorites, Style Feed & Apparel
 ```
 GET    /api/favorites               # List favorites (optional ?type= filter)
 POST   /api/favorites               # Save a favorite
 DELETE /api/favorites/{id}          # Remove a favorite
 GET    /api/stylefeed               # List style-feed cards for the user (latest first)
-```
-
-### Apparel Catalog
-```
 GET    /api/apparel/filters         # Get available filter options (gender, season, color, …)
 GET    /api/apparel/products        # Get filtered apparel products (up to 5 results)
 ```
