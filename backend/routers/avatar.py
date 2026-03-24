@@ -22,7 +22,7 @@ async def generate_avatar(
     - returns the Cloudinary URL of the generated avatar
     """
     API_KEY = POLLINATIONS_API_KEY
-    MODEL = "klein"
+    MODEL = "qwen-image"
     WIDTH = 2048
     HEIGHT = 2048
 
