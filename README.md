@@ -55,11 +55,11 @@ Paper-ID with title: **1338 - Smart Virtual Wardrobe: AI-Powered Outfit Planner 
 
 Below are some screenshots showcasing the **Smart-Virtual-Wardrobe** core features:
 
-![Virtual_Tryon_Example](./screenshots/virtual_tryon_example.png)
+![Virtual_Tryon_Example](./screenshots/virtual_tryon_part_1.png)
 
-![Virtual_Tryon_Result](./screenshots/virtual_tryon_result.png)
+![Virtual_Tryon_Result](./screenshots/virtual_tryon_part_2.png)
 
-![Classification_Result](/screenshots/image_classification.png)
+![Outfit_Suggestion_Result](/screenshots/outfit_recommendation.png)
 
 ---
 
