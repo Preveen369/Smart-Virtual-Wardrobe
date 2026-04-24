@@ -159,8 +159,16 @@ function ResultsColumn({
         ),
         extras: { marginBottom: 32, maxHeight: 320 },
       })}
-      {glbUrl && inner({
+      {/* {glbUrl && inner({
         children: <GLBViewer url={glbUrl} />, 
+        extras: { display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 10 },
+      })} */}
+      {glbUrl && inner({
+        children: (
+          <div style={{ width: '320px', height: '320px' }}>
+            <GLBViewer url={glbUrl} />
+          </div>
+        ),
         extras: { display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: 32 },
       })}
 

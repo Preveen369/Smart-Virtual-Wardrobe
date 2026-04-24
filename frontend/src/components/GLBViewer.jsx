@@ -31,7 +31,7 @@ function GLBViewer({ url }) {
     renderer.setSize(clientWidth || window.innerWidth, clientHeight || window.innerHeight);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     // increase exposure for brighter overall result
-    renderer.toneMappingExposure = 3.0; // 2.5
+    renderer.toneMappingExposure = 4.5; // 2.5
     renderer.setClearColor(0x000000, 0);
     mountNode.appendChild(renderer.domElement);
 
@@ -44,7 +44,7 @@ function GLBViewer({ url }) {
         (texture) => {
           const envMap = pmremGenerator.fromEquirectangular(texture).texture;
           scene.environment = envMap;
-          scene.environmentIntensity = 2.0;
+          scene.environmentIntensity = 3.5;
           texture.dispose();
           pmremGenerator.dispose();
         },
@@ -54,25 +54,22 @@ function GLBViewer({ url }) {
 
     // lights
     // brighter ambient to lift shadows
-    const ambient = new THREE.AmbientLight(0xffffff, 2.5);
+    const ambient = new THREE.AmbientLight(0xffffff, 4.0);
     scene.add(ambient);
-    const directional = new THREE.DirectionalLight(0xffffff, 2.0);
+    const directional = new THREE.DirectionalLight(0xffffff, 3.0);
     directional.position.set(5, 10, 7.5);
     scene.add(directional);
-    const directional2 = new THREE.DirectionalLight(0xffffff, 1.2);
+    const directional2 = new THREE.DirectionalLight(0xffffff, 3.0);
     directional2.position.set(-5, -10, -7.5);
     scene.add(directional2);
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 2.0);
     scene.add(hemi);
     const point = new THREE.PointLight(0xffffff, 1.0);
     scene.add(point);
     const rearPoint = new THREE.PointLight(0xffffff, 0.8);
     scene.add(rearPoint);
 
-    const grid = new THREE.GridHelper(10, 10);
-    scene.add(grid);
-    const axes = new THREE.AxesHelper(5);
-    scene.add(axes);
+    
 
     scene.background = null;
 
@@ -84,8 +81,8 @@ function GLBViewer({ url }) {
         modelRef.current = gltf.scene;
 
         // scale the model up slightly so it appears wider/larger
-        const MODEL_SCALE = 3.0; // adjust as needed
-        modelRef.current.scale.set(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
+        const MODEL_SCALE = 6.0; // adjust as needed
+        modelRef.current.scale.set(8.0, MODEL_SCALE, MODEL_SCALE);
 
         scene.add(modelRef.current);
 

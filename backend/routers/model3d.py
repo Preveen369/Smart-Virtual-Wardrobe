@@ -17,10 +17,10 @@ OUTPUT_DIR = "avatars_3D"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # client pointing at the TRELLIS multiple3D space
-HF_TOKEN = os.getenv("HF_TOKEN")
-if HF_TOKEN:
-    # gradio_client reads HF_TOKEN from environment when making requests
-    os.environ["HF_TOKEN"] = HF_TOKEN
+# HF_TOKEN = os.getenv("HF_TOKEN")
+# if HF_TOKEN:
+#     # gradio_client reads HF_TOKEN from environment when making requests
+#     os.environ["HF_TOKEN"] = HF_TOKEN
 client = Client("dkatz2391/Cavargas-TRELLIS-Multiple3D")
 
 @router.post("/generate-3d")
@@ -74,11 +74,15 @@ async def generate_3d(
     # extract GLB only if requested
     glb_url = None
     if include_glb:
-        glb = client.predict(
-            mesh_simplify=0.95,
-            texture_size=1024,
-            api_name="/extract_glb"
-        )
+        try:
+            glb = client.predict(
+                mesh_simplify=0.95,
+                texture_size=1024,
+                api_name="/extract_glb"
+            )
+        except Exception as exc:
+            print(f"GLB extraction failed: {exc}")
+            glb = None
 
     # generic copier: if `src` refers to a local file path (string or
     # dict containing a path) then copy it into OUTPUT_DIR and return the
@@ -101,17 +105,17 @@ async def generate_3d(
                     mode = 'wb' if isinstance(src['data'], (bytes, bytearray)) else 'w'
                     with open(tmp_path, mode) as f:
                         f.write(src['data'])
-                    return f"/avatars/{os.path.basename(tmp_path)}"
+                    return f"/avatars_3D/{os.path.basename(tmp_path)}"
                 except Exception:
                     pass
-            # otherwise try common path keys, including 'video'
-            src = src.get('path') or src.get('video') or src.get('name') or src.get('file') or src
+            # otherwise try common path keys, including video or GLB paths
+            src = src.get('path') or src.get('video') or src.get('glb') or src.get('mesh') or src.get('name') or src.get('file') or src
         # if we now have a usable path-like
         if isinstance(src, (str, bytes, os.PathLike)):
             try:
                 dest = os.path.join(OUTPUT_DIR, os.path.basename(src))
                 shutil.copy(src, dest)
-                return f"/avatars/{os.path.basename(dest)}"
+                return f"/avatars_3D/{os.path.basename(dest)}"
             except Exception:
                 return src
         # fallback: return whatever it was
