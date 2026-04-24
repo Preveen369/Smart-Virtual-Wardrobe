@@ -14,7 +14,7 @@ A comprehensive AI-powered virtual wardrobe application that combines intelligen
 
 🔗 **Related Documentations**: [Frontend README](./frontend/README.md) | [Backend README](./backend/README.md) 
 
-**📽️ Project Demo**: [View Smart Virtual Wardrobe Demo](https://jmp.sh/iMeyrOOx)
+**📽️ Project Demo**: [View Smart Virtual Wardrobe Demo](https://jmp.sh/12WeDP1H)
 
 ---
 
